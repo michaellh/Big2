@@ -1,20 +1,70 @@
 import express from "express";
 import cors from "cors";
-// import diagnosesRouter from "./routes/diagnoses";
+import http from "http";
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/lib/use/ws";
+import config from "./utils/config";
+import typeDefs from "./schema";
+import resolvers from "./resolvers";
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+const start = async () => {
+  const app = express();
+  const httpServer = http.createServer(app);
 
-const PORT = 3001;
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: "/",
+  });
 
-app.get("/api/ping", (_req, res) => {
-  console.log("someone pinged here");
-  res.send("pong");
-});
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  const serverCleanup = useServer({ schema }, wsServer);
 
-// app.use("/api/diagnoses", diagnosesRouter);
+  const server = new ApolloServer({
+    schema,
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
+  });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  await server.start();
+
+  app.use(
+    "/",
+    cors(),
+    express.json(),
+    expressMiddleware(server, {
+      //   context: async ({ req }) => {
+      //     const auth = req ? req.headers.authorization : null;
+      //     if (auth && auth.startsWith("Bearer ")) {
+      //       const decodedToken = jwt.verify(
+      //         auth.substring(7),
+      //         process.env.JWT_SECRET
+      //       );
+      //       const currentUser = await User.findById(decodedToken.id).populate(
+      //         "friends"
+      //       );
+      //       return { currentUser };
+      //     }
+      //   },
+    })
+  );
+
+  httpServer.listen(config.PORT, () =>
+    console.log(`Server is now running on http://localhost:${config.PORT}`)
+  );
+};
+
+start();
