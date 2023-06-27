@@ -7,6 +7,10 @@ import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHt
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
+import {
+  typeDefs as scalarTypeDefs,
+  resolvers as scalarResolvers,
+} from "graphql-scalars";
 import config from "./utils/config";
 import typeDefs from "./schema";
 import resolvers from "./resolvers";
@@ -20,7 +24,10 @@ const start = async () => {
     path: "/",
   });
 
-  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  const schema = makeExecutableSchema({
+    typeDefs: [...scalarTypeDefs, typeDefs],
+    resolvers: [scalarResolvers, resolvers],
+  });
   const serverCleanup = useServer({ schema }, wsServer);
 
   const server = new ApolloServer({
