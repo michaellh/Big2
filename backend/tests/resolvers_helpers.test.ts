@@ -370,25 +370,29 @@ describe("isCardHigher", () => {
 });
 
 describe("updateCurrentMove", () => {
-  let gameState: GameState = {
-    turnRotation: ["Tester", "Michael"],
-    currentMove: {
-      cards: [],
-      type: "",
-      player: "",
-      playersInPlay: ["Tester", "Michael"],
-    },
-    playerStates: [
-      {
-        player: "Tester",
-        cardCount: 2,
+  let gameState: GameState;
+
+  beforeEach(() => {
+    gameState = {
+      turnRotation: ["Tester", "Michael"],
+      currentMove: {
+        cards: [],
+        type: "",
+        player: "",
+        playersInPlay: ["Tester", "Michael"],
       },
-      {
-        player: "Michael",
-        cardCount: 3,
-      },
-    ],
-  };
+      playerStates: [
+        {
+          player: "Tester",
+          cardCount: 2,
+        },
+        {
+          player: "Michael",
+          cardCount: 3,
+        },
+      ],
+    };
+  });
 
   test("when a player plays cards", () => {
     const playerAction = {
@@ -404,12 +408,42 @@ describe("updateCurrentMove", () => {
         cards: playerAction.cardsPlayed,
         type: "single",
         player: "Tester",
-        playersInPlay: ["Tester", "Michael"],
+        playersInPlay: ["Michael", "Tester"],
       },
       playerStates: [
         {
           player: "Tester",
           cardCount: 1,
+        },
+        {
+          player: "Michael",
+          cardCount: 3,
+        },
+      ],
+    });
+  });
+
+  test("when a player runs out of cards with play", () => {
+    gameState.playerStates[0].cardCount = 1;
+    const playerAction = {
+      name: "Tester",
+      action: "play",
+      cardsPlayed: [{ id: 0, value: 1, suit: 1 }],
+    };
+    updateCurrentMove(gameState, "single", playerAction);
+
+    expect(gameState).toStrictEqual({
+      turnRotation: ["Michael"],
+      currentMove: {
+        cards: playerAction.cardsPlayed,
+        type: "single",
+        player: "Michael",
+        playersInPlay: ["Michael"],
+      },
+      playerStates: [
+        {
+          player: "Tester",
+          cardCount: 0,
         },
         {
           player: "Michael",
@@ -453,13 +487,14 @@ describe("updateGameStateFromPlay", () => {
     };
     const result = updateGameStateFromPlay(playerAction, gameState);
 
+    expect(result.success).toBe(true);
     expect(result.updatedGameState).toStrictEqual({
       turnRotation: ["Michael", "Tester"],
       currentMove: {
         cards: playerAction.cardsPlayed,
         type: "single",
         player: "Tester",
-        playersInPlay: ["Tester", "Michael"],
+        playersInPlay: ["Michael", "Tester"],
       },
       playerStates: [
         {
@@ -472,7 +507,6 @@ describe("updateGameStateFromPlay", () => {
         },
       ],
     });
-    expect(result.success).toBe(true);
   });
 
   describe("single", () => {
@@ -488,12 +522,13 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
-      expect(result.updatedGameState).toMatchObject(gameState);
       expect(result.success).toBe(false);
+      expect(result.updatedGameState).toMatchObject(gameState);
     });
 
     test("beat by a higher single", () => {
       gameState.turnRotation = ["Michael", "Tester"];
+      gameState.currentMove.playersInPlay = ["Michael", "Tester"];
       gameState.currentMove.cards = [{ id: 0, value: 2, suit: 1 }];
       gameState.currentMove.type = "single";
       gameState.currentMove.player = "Tester";
@@ -505,13 +540,14 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
+      expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
         turnRotation: ["Tester", "Michael"],
         currentMove: {
           cards: playerAction.cardsPlayed,
           type: gameState.currentMove.type,
           player: playerAction.name,
-          playersInPlay: gameState.currentMove.playersInPlay,
+          playersInPlay: ["Tester", "Michael"],
         },
         playerStates: [
           {
@@ -524,11 +560,11 @@ describe("updateGameStateFromPlay", () => {
           },
         ],
       });
-      expect(result.success).toBe(true);
     });
 
     test("when current move = single 2 & is beat by a chop", () => {
       gameState.turnRotation = ["Michael", "Tester"];
+      gameState.currentMove.playersInPlay = ["Michael", "Tester"];
       gameState.currentMove.cards = [{ id: 0, value: 15, suit: 1 }];
       gameState.currentMove.type = "single";
       gameState.currentMove.player = "Tester";
@@ -548,13 +584,14 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
+      expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
         turnRotation: ["Tester", "Michael"],
         currentMove: {
           cards: playerAction.cardsPlayed,
           type: "chop",
           player: playerAction.name,
-          playersInPlay: gameState.currentMove.playersInPlay,
+          playersInPlay: ["Tester", "Michael"],
         },
         playerStates: [
           {
@@ -567,11 +604,11 @@ describe("updateGameStateFromPlay", () => {
           },
         ],
       });
-      expect(result.success).toBe(true);
     });
 
     test("when current move = single 2 & is beat by a bomb", () => {
       gameState.turnRotation = ["Michael", "Tester"];
+      gameState.currentMove.playersInPlay = ["Michael", "Tester"];
       gameState.currentMove.cards = [{ id: 0, value: 15, suit: 1 }];
       gameState.currentMove.type = "single";
       gameState.currentMove.player = "Tester";
@@ -589,13 +626,14 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
+      expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
         turnRotation: ["Tester", "Michael"],
         currentMove: {
           cards: playerAction.cardsPlayed,
           type: "bomb",
           player: playerAction.name,
-          playersInPlay: gameState.currentMove.playersInPlay,
+          playersInPlay: ["Tester", "Michael"],
         },
         playerStates: [
           {
@@ -608,7 +646,6 @@ describe("updateGameStateFromPlay", () => {
           },
         ],
       });
-      expect(result.success).toBe(true);
     });
   });
 
@@ -631,12 +668,13 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
-      expect(result.updatedGameState).toMatchObject(gameState);
       expect(result.success).toBe(false);
+      expect(result.updatedGameState).toMatchObject(gameState);
     });
 
     test("beat by a higher pair", () => {
       gameState.turnRotation = ["Michael", "Tester"];
+      gameState.currentMove.playersInPlay = ["Michael", "Tester"];
       gameState.currentMove.cards = [
         { id: 0, value: 2, suit: 1 },
         { id: 0, value: 2, suit: 2 },
@@ -654,13 +692,14 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
+      expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
         turnRotation: ["Tester", "Michael"],
         currentMove: {
           cards: playerAction.cardsPlayed,
           type: gameState.currentMove.type,
           player: playerAction.name,
-          playersInPlay: gameState.currentMove.playersInPlay,
+          playersInPlay: ["Tester", "Michael"],
         },
         playerStates: [
           {
@@ -673,11 +712,11 @@ describe("updateGameStateFromPlay", () => {
           },
         ],
       });
-      expect(result.success).toBe(true);
     });
 
     test("when current move = pair 2s & is beat by a 4 chop", () => {
       gameState.turnRotation = ["Michael", "Tester"];
+      gameState.currentMove.playersInPlay = ["Michael", "Tester"];
       gameState.currentMove.cards = [
         { id: 0, value: 15, suit: 1 },
         { id: 0, value: 15, suit: 2 },
@@ -702,13 +741,14 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
+      expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
         turnRotation: ["Tester", "Michael"],
         currentMove: {
           cards: playerAction.cardsPlayed,
           type: "chop",
           player: playerAction.name,
-          playersInPlay: gameState.currentMove.playersInPlay,
+          playersInPlay: ["Tester", "Michael"],
         },
         playerStates: [
           {
@@ -721,7 +761,6 @@ describe("updateGameStateFromPlay", () => {
           },
         ],
       });
-      expect(result.success).toBe(true);
     });
   });
 
@@ -746,12 +785,13 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
-      expect(result.updatedGameState).toMatchObject(gameState);
       expect(result.success).toBe(false);
+      expect(result.updatedGameState).toMatchObject(gameState);
     });
 
     test("beat by a higher triple", () => {
       gameState.turnRotation = ["Michael", "Tester"];
+      gameState.currentMove.playersInPlay = ["Michael", "Tester"];
       gameState.currentMove.cards = [
         { id: 0, value: 2, suit: 1 },
         { id: 0, value: 2, suit: 2 },
@@ -759,6 +799,7 @@ describe("updateGameStateFromPlay", () => {
       ];
       gameState.currentMove.type = "triple";
       gameState.currentMove.player = "Tester";
+      gameState.playerStates[1].cardCount = 5;
 
       const playerAction = {
         name: "Michael",
@@ -771,13 +812,14 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
+      expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
         turnRotation: ["Tester", "Michael"],
         currentMove: {
           cards: playerAction.cardsPlayed,
           type: gameState.currentMove.type,
           player: playerAction.name,
-          playersInPlay: gameState.currentMove.playersInPlay,
+          playersInPlay: ["Tester", "Michael"],
         },
         playerStates: [
           {
@@ -786,15 +828,15 @@ describe("updateGameStateFromPlay", () => {
           },
           {
             player: "Michael",
-            cardCount: 0,
+            cardCount: 2,
           },
         ],
       });
-      expect(result.success).toBe(true);
     });
 
     test("when current move = triple 2s & is beat by a 5 chop", () => {
       gameState.turnRotation = ["Michael", "Tester"];
+      gameState.currentMove.playersInPlay = ["Michael", "Tester"];
       gameState.currentMove.cards = [
         { id: 0, value: 15, suit: 1 },
         { id: 0, value: 15, suit: 2 },
@@ -802,7 +844,7 @@ describe("updateGameStateFromPlay", () => {
       ];
       gameState.currentMove.type = "triple";
       gameState.currentMove.player = "Tester";
-      gameState.playerStates[1].cardCount = 10;
+      gameState.playerStates[1].cardCount = 11;
 
       const playerAction = {
         name: "Michael",
@@ -822,13 +864,14 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
+      expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
         turnRotation: ["Tester", "Michael"],
         currentMove: {
           cards: playerAction.cardsPlayed,
           type: "chop",
           player: playerAction.name,
-          playersInPlay: gameState.currentMove.playersInPlay,
+          playersInPlay: ["Tester", "Michael"],
         },
         playerStates: [
           {
@@ -837,11 +880,10 @@ describe("updateGameStateFromPlay", () => {
           },
           {
             player: "Michael",
-            cardCount: 0,
+            cardCount: 1,
           },
         ],
       });
-      expect(result.success).toBe(true);
     });
   });
 
@@ -868,12 +910,13 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
-      expect(result.updatedGameState).toMatchObject(gameState);
       expect(result.success).toBe(false);
+      expect(result.updatedGameState).toMatchObject(gameState);
     });
 
     test("beat by a higher bomb", () => {
       gameState.turnRotation = ["Michael", "Tester"];
+      gameState.currentMove.playersInPlay = ["Michael", "Tester"];
       gameState.currentMove.cards = [
         { id: 0, value: 2, suit: 1 },
         { id: 0, value: 2, suit: 2 },
@@ -896,13 +939,14 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
+      expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
         turnRotation: ["Tester", "Michael"],
         currentMove: {
           cards: playerAction.cardsPlayed,
           type: gameState.currentMove.type,
           player: playerAction.name,
-          playersInPlay: gameState.currentMove.playersInPlay,
+          playersInPlay: ["Tester", "Michael"],
         },
         playerStates: [
           {
@@ -915,7 +959,6 @@ describe("updateGameStateFromPlay", () => {
           },
         ],
       });
-      expect(result.success).toBe(true);
     });
   });
 
@@ -941,8 +984,8 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
-      expect(result.updatedGameState).toMatchObject(gameState);
       expect(result.success).toBe(false);
+      expect(result.updatedGameState).toMatchObject(gameState);
     });
 
     test("can't be beat by a lower straight of same size", () => {
@@ -965,12 +1008,13 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
-      expect(result.updatedGameState).toMatchObject(gameState);
       expect(result.success).toBe(false);
+      expect(result.updatedGameState).toMatchObject(gameState);
     });
 
     test("beat by a higher straight of same size", () => {
       gameState.turnRotation = ["Michael", "Tester"];
+      gameState.currentMove.playersInPlay = ["Michael", "Tester"];
       gameState.currentMove.cards = [
         { id: 0, value: 1, suit: 1 },
         { id: 0, value: 2, suit: 2 },
@@ -993,13 +1037,14 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
+      expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
         turnRotation: ["Tester", "Michael"],
         currentMove: {
           cards: playerAction.cardsPlayed,
           type: gameState.currentMove.type,
           player: playerAction.name,
-          playersInPlay: gameState.currentMove.playersInPlay,
+          playersInPlay: ["Tester", "Michael"],
         },
         playerStates: [
           {
@@ -1012,7 +1057,6 @@ describe("updateGameStateFromPlay", () => {
           },
         ],
       });
-      expect(result.success).toBe(true);
     });
   });
 
@@ -1045,8 +1089,8 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
-      expect(result.updatedGameState).toMatchObject(gameState);
       expect(result.success).toBe(false);
+      expect(result.updatedGameState).toMatchObject(gameState);
     });
 
     test("can't be beat by a lower chop of same size", () => {
@@ -1075,12 +1119,13 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
-      expect(result.updatedGameState).toMatchObject(gameState);
       expect(result.success).toBe(false);
+      expect(result.updatedGameState).toMatchObject(gameState);
     });
 
     test("beat by a higher chop of same size", () => {
       gameState.turnRotation = ["Michael", "Tester"];
+      gameState.currentMove.playersInPlay = ["Michael", "Tester"];
       gameState.currentMove.cards = [
         { id: 0, value: 2, suit: 1 },
         { id: 0, value: 2, suit: 2 },
@@ -1095,7 +1140,7 @@ describe("updateGameStateFromPlay", () => {
       ];
       gameState.currentMove.type = "chop";
       gameState.currentMove.player = "Tester";
-      gameState.playerStates[1].cardCount = 10;
+      gameState.playerStates[1].cardCount = 13;
 
       const playerAction = {
         name: "Michael",
@@ -1115,13 +1160,14 @@ describe("updateGameStateFromPlay", () => {
       };
       const result = updateGameStateFromPlay(playerAction, gameState);
 
+      expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
         turnRotation: ["Tester", "Michael"],
         currentMove: {
           cards: playerAction.cardsPlayed,
           type: gameState.currentMove.type,
           player: playerAction.name,
-          playersInPlay: gameState.currentMove.playersInPlay,
+          playersInPlay: ["Tester", "Michael"],
         },
         playerStates: [
           {
@@ -1130,11 +1176,10 @@ describe("updateGameStateFromPlay", () => {
           },
           {
             player: "Michael",
-            cardCount: 0,
+            cardCount: 3,
           },
         ],
       });
-      expect(result.success).toBe(true);
     });
   });
 });

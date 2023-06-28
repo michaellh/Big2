@@ -1,7 +1,7 @@
 // const jwt = require("jsonwebtoken");
 import { PubSub } from "graphql-subscriptions";
 import { clients, deckOfCards } from "./utils/test_data";
-import { Card, GameState } from "./schema";
+import { GameState, PlayerAction } from "./schema";
 import {
   selectRandomCards,
   updateGameStateFromPlay,
@@ -29,7 +29,6 @@ let gameState: GameState = {
 
 const resolvers = {
   Query: {
-    clientCount: () => clients.length,
     allClients: () => clients,
   },
   Mutation: {
@@ -41,6 +40,7 @@ const resolvers = {
     },
     startGame: () => {
       const distributedCards = selectRandomCards(deckOfCards, clients.length);
+
       const lowestCardPlayer = distributedCards.reduce(
         (lowest, cards, index) => {
           cards.sort((a, b) => {
@@ -71,12 +71,12 @@ const resolvers = {
         (player) => player !== lowestCardPlayer.player
       );
       gameState.turnRotation.unshift(lowestCardPlayer.player);
-      gameState.playerStates = clients.map((client) => {
-        return {
-          player: client,
-          cardCount: 13,
-        };
-      });
+      gameState.currentMove.playersInPlay = gameState.turnRotation;
+
+      gameState.playerStates = clients.map((client) => ({
+        player: client,
+        cardCount: 13,
+      }));
 
       clients.forEach((client, index) => {
         pubsub.publish(`GAME_START_${client}`, {
@@ -89,46 +89,52 @@ const resolvers = {
 
       return gameState;
     },
-    playerMove: (
-      _root: unknown,
-      args: { name: string; action: string; cardsPlayed: Card[] }
-    ) => {
-      const { name, action, cardsPlayed } = args;
-      console.log(cardsPlayed);
+    playerMove: (_root: unknown, args: { playerAction: PlayerAction }) => {
+      const { name, action, cardsPlayed } = args.playerAction;
+
       if (action === "play") {
         const { updatedGameState, success } = updateGameStateFromPlay(
-          {
-            name,
-            action,
-            cardsPlayed,
-          },
+          { name, action, cardsPlayed },
           gameState
         );
 
         if (success) {
           gameState = updatedGameState;
-          // send publish
-          pubsub.publish("PLAYER_MOVE", gameState);
+          pubsub.publish("PLAYER_MOVE", { playerMove: gameState });
         } else {
           throw new GraphQLError("trash play");
         }
       }
+
       if (action === "pass") {
-        gameState.currentMove.playersInPlay =
-          gameState.currentMove.playersInPlay.filter(
-            (player) => player !== name
-          );
-        // send publish
-        pubsub.publish("PLAYER_MOVE", gameState);
+        gameState.currentMove.playersInPlay.shift();
+        const shiftPlayer = gameState.turnRotation.shift()?.toString();
+
+        if (shiftPlayer) {
+          gameState.turnRotation.push(shiftPlayer);
+        }
+
+        if (gameState.currentMove.playersInPlay.length === 1) {
+          while (gameState.turnRotation[0] !== gameState.currentMove.player) {
+            const shiftPlayer = gameState.turnRotation.shift()?.toString();
+
+            if (shiftPlayer) {
+              gameState.turnRotation.push(shiftPlayer);
+            }
+          }
+          gameState.currentMove.playersInPlay = gameState.turnRotation;
+          gameState.currentMove.player = "";
+          gameState.currentMove.cards = [];
+          gameState.currentMove.type = "";
+        }
+
+        pubsub.publish("PLAYER_MOVE", { playerMove: gameState });
       }
 
       return gameState;
     },
   },
   Subscription: {
-    clientAdded: {
-      subscribe: () => pubsub.asyncIterator("CLIENT_ADDED"),
-    },
     gameStart: {
       subscribe: (_: unknown, { name }: { name: string }) =>
         pubsub.asyncIterator(`GAME_START_${name}`),

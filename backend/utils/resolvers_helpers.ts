@@ -93,6 +93,13 @@ export const updateGameStateFromPlay = (
   const currentMove = gameStateCopy.currentMove;
   let success = false;
 
+  if (playerAction.name !== currentMove.playersInPlay[0]) {
+    return {
+      updatedGameState: gameStateCopy,
+      success,
+    };
+  }
+
   if (currentMove.cards.length === 0) {
     const type = isSingle(cards)
       ? "single"
@@ -144,7 +151,7 @@ export const updateGameStateFromPlay = (
       break;
     case "triple":
       if (isTriple(cards)) {
-        if (isCardHigher(cards[0], currentMove.cards[0])) {
+        if (isCardHigher(cards[2], currentMove.cards[2])) {
           updateCurrentMove(gameStateCopy, "triple", playerAction);
           success = true;
         }
@@ -155,7 +162,7 @@ export const updateGameStateFromPlay = (
       break;
     case "bomb":
       if (isBomb(cards)) {
-        if (isCardHigher(cards[0], currentMove.cards[0])) {
+        if (isCardHigher(cards[3], currentMove.cards[3])) {
           updateCurrentMove(gameStateCopy, "bomb", playerAction);
           success = true;
         }
@@ -225,11 +232,22 @@ export function updateCurrentMove(
   gameState.playerStates.find((playerState) => {
     if (playerState.player === playerAction.name) {
       playerState.cardCount -= playerAction.cardsPlayed.length;
+
+      if (playerState.cardCount === 0) {
+        gameState.turnRotation.shift();
+        gameState.currentMove.playersInPlay.shift();
+        gameState.currentMove.player = gameState.currentMove.playersInPlay[0];
+      } else {
+        const currentPlayer = gameState.currentMove.playersInPlay.shift();
+        if (currentPlayer) {
+          gameState.currentMove.player = currentPlayer;
+          gameState.currentMove.playersInPlay.push(currentPlayer);
+        }
+        const shiftPlayer = gameState.turnRotation.shift();
+        if (shiftPlayer) {
+          gameState.turnRotation.push(shiftPlayer);
+        }
+      }
     }
   });
-  const lastPlayer = gameState.turnRotation.shift()?.toString();
-  if (lastPlayer) {
-    gameState.currentMove.player = lastPlayer;
-    gameState.turnRotation.push(lastPlayer);
-  }
 }

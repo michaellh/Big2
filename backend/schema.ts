@@ -1,6 +1,5 @@
 const typeDefs = `
   type Query {
-    clientCount: Int!
     allClients: [String]!
   }
   type Mutation {
@@ -9,7 +8,6 @@ const typeDefs = `
     playerMove(playerAction: PlayerAction!): GameState!
   }
   type Subscription {
-    clientAdded: String!
     gameStart(name: String!): GameStartState!
     playerMove: GameState!
   }
