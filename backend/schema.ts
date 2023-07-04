@@ -1,15 +1,25 @@
+import { Types } from 'mongoose';
+
 const typeDefs = `
   type Query {
-    allClients: [String]!
+    allPlayers: [String]!
   }
   type Mutation {
-    joinGame(name: String!): String! 
+    hostGame(gameInput: GameInput!): String!
+    joinGame(gameInput: GameInput!): String! 
     startGame: Void
     playerMove(playerAction: PlayerAction!): GameState!
   }
   type Subscription {
-    gameStart(name: String!): GameStartState!
+    gameStart: GameStartState!
     playerMove: GameState!
+  }
+  type User {
+    name: String!
+  }
+  input GameInput {
+    name: String!
+    roomName: String!
   }
   type Card {
     id: Int!
@@ -22,14 +32,13 @@ const typeDefs = `
     suit: Int!
   }
   input PlayerAction {
-    name: String!
     action: String!
     cardsPlayed: [CardInput!]!
   }
   type CurrentMove {
-    cards: [Card!]
-    type: String!
-    player: String!
+    cards: [Card]
+    play: String
+    player: String
     playersInPlay: [String!]
   }
   type PlayerState {
@@ -54,15 +63,15 @@ export type Card = {
 };
 
 export type GameState = {
-  turnRotation: string[];
+  turnRotation: Types.ObjectId[];
   currentMove: {
     cards: Card[];
-    type: string;
-    player: string;
-    playersInPlay: string[];
+    play: string;
+    player: Types.ObjectId;
+    playersInPlay: Types.ObjectId[];
   };
   playerStates: {
-    player: string;
+    player: Types.ObjectId;
     cardCount: number;
   }[];
 };
@@ -72,8 +81,12 @@ export interface GameStateUpdateResult {
   success: boolean;
 }
 
-export type PlayerAction = {
+export interface GameInput {
   name: string;
+  roomName: string;
+}
+
+export type PlayerAction = {
   action: string;
   cardsPlayed: Card[];
 };

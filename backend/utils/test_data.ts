@@ -1,7 +1,5 @@
-import { Card } from "../schema";
-import { SUIT_VALUES, CARD_VALUES } from "./enums";
-
-export let clients: string[] = [];
+import { Card } from '../schema';
+import { SUIT_VALUES, CARD_VALUES } from './enums';
 
 export const deckOfCards: Card[] = [
   { id: 0, value: CARD_VALUES.THREE, suit: SUIT_VALUES.SPADES },

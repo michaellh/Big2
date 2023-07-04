@@ -1,9 +1,10 @@
+import { Types } from 'mongoose';
 import {
   Card,
   GameState,
   GameStateUpdateResult,
   PlayerAction,
-} from "../schema";
+} from '../schema';
 
 export const selectRandomCards = (
   deckOfCards: Card[],
@@ -85,6 +86,7 @@ export const isChop = (cards: Card[], chops: number = 3): boolean => {
 };
 
 export const updateGameStateFromPlay = (
+  user: Types.ObjectId,
   playerAction: PlayerAction,
   gameState: GameState
 ): GameStateUpdateResult => {
@@ -93,7 +95,7 @@ export const updateGameStateFromPlay = (
   const currentMove = gameStateCopy.currentMove;
   let success = false;
 
-  if (playerAction.name !== currentMove.playersInPlay[0]) {
+  if (!user.equals(currentMove.playersInPlay[0])) {
     return {
       updatedGameState: gameStateCopy,
       success,
@@ -101,74 +103,74 @@ export const updateGameStateFromPlay = (
   }
 
   if (currentMove.cards.length === 0) {
-    const type = isSingle(cards)
-      ? "single"
+    const play = isSingle(cards)
+      ? 'single'
       : isPair(cards)
-      ? "pair"
+      ? 'pair'
       : isTriple(cards)
-      ? "triple"
+      ? 'triple'
       : isBomb(cards)
-      ? "bomb"
+      ? 'bomb'
       : isStraight(cards)
-      ? "straight"
+      ? 'straight'
       : isChop(cards)
-      ? "chop"
+      ? 'chop'
       : undefined;
 
-    if (type) {
-      updateCurrentMove(gameStateCopy, type, playerAction);
+    if (play) {
+      updateCurrentMove(user, gameStateCopy, play, playerAction);
       success = true;
     }
   }
 
-  switch (currentMove.type) {
-    case "single":
+  switch (currentMove.play) {
+    case 'single':
       if (isSingle(cards)) {
         if (isCardHigher(cards[0], currentMove.cards[0])) {
-          updateCurrentMove(gameStateCopy, "single", playerAction);
+          updateCurrentMove(user, gameStateCopy, 'single', playerAction);
           success = true;
         }
       } else if (currentMove.cards[0].value === 15) {
         if (isChop(cards)) {
-          updateCurrentMove(gameStateCopy, "chop", playerAction);
+          updateCurrentMove(user, gameStateCopy, 'chop', playerAction);
           success = true;
         } else if (isBomb(cards)) {
-          updateCurrentMove(gameStateCopy, "bomb", playerAction);
+          updateCurrentMove(user, gameStateCopy, 'bomb', playerAction);
           success = true;
         }
       }
       break;
-    case "pair":
+    case 'pair':
       if (isPair(cards)) {
         if (isCardHigher(cards[1], currentMove.cards[1])) {
-          updateCurrentMove(gameStateCopy, "pair", playerAction);
+          updateCurrentMove(user, gameStateCopy, 'pair', playerAction);
           success = true;
         }
       } else if (currentMove.cards[0].value === 15 && isChop(cards, 4)) {
-        updateCurrentMove(gameStateCopy, "chop", playerAction);
+        updateCurrentMove(user, gameStateCopy, 'chop', playerAction);
         success = true;
       }
       break;
-    case "triple":
+    case 'triple':
       if (isTriple(cards)) {
         if (isCardHigher(cards[2], currentMove.cards[2])) {
-          updateCurrentMove(gameStateCopy, "triple", playerAction);
+          updateCurrentMove(user, gameStateCopy, 'triple', playerAction);
           success = true;
         }
       } else if (currentMove.cards[0].value === 15 && isChop(cards, 5)) {
-        updateCurrentMove(gameStateCopy, "chop", playerAction);
+        updateCurrentMove(user, gameStateCopy, 'chop', playerAction);
         success = true;
       }
       break;
-    case "bomb":
+    case 'bomb':
       if (isBomb(cards)) {
         if (isCardHigher(cards[3], currentMove.cards[3])) {
-          updateCurrentMove(gameStateCopy, "bomb", playerAction);
+          updateCurrentMove(user, gameStateCopy, 'bomb', playerAction);
           success = true;
         }
       }
       break;
-    case "straight":
+    case 'straight':
       if (isStraight(cards) && cards.length === currentMove.cards.length) {
         if (
           isCardHigher(
@@ -176,12 +178,12 @@ export const updateGameStateFromPlay = (
             currentMove.cards[currentMove.cards.length - 1]
           )
         ) {
-          updateCurrentMove(gameStateCopy, "straight", playerAction);
+          updateCurrentMove(user, gameStateCopy, 'straight', playerAction);
           success = true;
         }
       }
       break;
-    case "chop":
+    case 'chop':
       if (
         (isChop(cards) && currentMove.cards.length === 6) ||
         (isChop(cards, 4) && currentMove.cards.length === 8) ||
@@ -193,7 +195,7 @@ export const updateGameStateFromPlay = (
             currentMove.cards[currentMove.cards.length - 1]
           )
         ) {
-          updateCurrentMove(gameStateCopy, "chop", playerAction);
+          updateCurrentMove(user, gameStateCopy, 'chop', playerAction);
           success = true;
         }
       }
@@ -223,31 +225,35 @@ export function isCardHigher(cardA: Card, cardB: Card): boolean {
 }
 
 export function updateCurrentMove(
+  user: Types.ObjectId,
   gameState: GameState,
-  type: string,
+  play: string,
   playerAction: PlayerAction
 ) {
-  gameState.currentMove.type = type;
+  gameState.currentMove.play = play;
   gameState.currentMove.cards = playerAction.cardsPlayed;
-  gameState.playerStates.find((playerState) => {
-    if (playerState.player === playerAction.name) {
-      playerState.cardCount -= playerAction.cardsPlayed.length;
 
-      if (playerState.cardCount === 0) {
-        gameState.turnRotation.shift();
-        gameState.currentMove.playersInPlay.shift();
-        gameState.currentMove.player = gameState.currentMove.playersInPlay[0];
-      } else {
-        const currentPlayer = gameState.currentMove.playersInPlay.shift();
-        if (currentPlayer) {
-          gameState.currentMove.player = currentPlayer;
-          gameState.currentMove.playersInPlay.push(currentPlayer);
-        }
-        const shiftPlayer = gameState.turnRotation.shift();
-        if (shiftPlayer) {
-          gameState.turnRotation.push(shiftPlayer);
-        }
+  const playerState = gameState.playerStates.find(
+    (state) => state.player.toString() === user.toString()
+  );
+
+  if (playerState) {
+    playerState.cardCount -= playerAction.cardsPlayed.length;
+
+    if (playerState.cardCount === 0) {
+      gameState.turnRotation.shift();
+      gameState.currentMove.playersInPlay.shift();
+      gameState.currentMove.player = gameState.currentMove.playersInPlay[0];
+    } else {
+      const currentPlayer = gameState.currentMove.playersInPlay.shift();
+      if (currentPlayer) {
+        gameState.currentMove.player = currentPlayer;
+        gameState.currentMove.playersInPlay.push(currentPlayer);
+      }
+      const shiftPlayer = gameState.turnRotation.shift();
+      if (shiftPlayer) {
+        gameState.turnRotation.push(shiftPlayer);
       }
     }
-  });
+  }
 }
