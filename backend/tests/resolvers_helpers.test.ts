@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import {
   selectRandomCards,
   isSingle,
@@ -10,9 +11,8 @@ import {
   updateCurrentMove,
   updateGameStateFromPlay,
 } from '../utils/resolvers_helpers';
-import { deckOfCards } from '../utils/test_data';
+import deckOfCards from '../utils/test_data';
 import { Card, GameState } from '../schema';
-import { Types } from 'mongoose';
 
 describe('selectRandomCards', () => {
   test('with 2 players', () => {
@@ -370,7 +370,7 @@ describe('isCardHigher', () => {
   });
 });
 
-describe.only('updateCurrentMove', () => {
+describe('updateCurrentMove', () => {
   let gameState: GameState;
   const testPlayer1 = new Types.ObjectId();
   const testPlayer2 = new Types.ObjectId();
@@ -403,23 +403,28 @@ describe.only('updateCurrentMove', () => {
       action: 'play',
       cardsPlayed: [{ id: 0, value: 1, suit: 1 }],
     };
-    updateCurrentMove(testPlayer1, gameState, 'single', playerAction);
+    const result = updateCurrentMove(
+      testPlayer1,
+      gameState,
+      'single',
+      playerAction,
+    );
 
-    expect(gameState).toStrictEqual({
-      turnRotation: [testPlayer2, testPlayer1],
+    expect(result).toStrictEqual({
+      turnRotation: [testPlayer2.toString(), testPlayer1.toString()],
       currentMove: {
         cards: playerAction.cardsPlayed,
         play: 'single',
-        player: testPlayer1,
-        playersInPlay: [testPlayer2, testPlayer1],
+        player: testPlayer1.toString(),
+        playersInPlay: [testPlayer2.toString(), testPlayer1.toString()],
       },
       playerStates: [
         {
-          player: testPlayer1,
+          player: testPlayer1.toString(),
           cardCount: 1,
         },
         {
-          player: testPlayer2,
+          player: testPlayer2.toString(),
           cardCount: 3,
         },
       ],
@@ -433,23 +438,28 @@ describe.only('updateCurrentMove', () => {
       action: 'play',
       cardsPlayed: [{ id: 0, value: 1, suit: 1 }],
     };
-    updateCurrentMove(testPlayer1, gameState, 'single', playerAction);
+    const result = updateCurrentMove(
+      testPlayer1,
+      gameState,
+      'single',
+      playerAction,
+    );
 
-    expect(gameState).toStrictEqual({
-      turnRotation: [testPlayer2],
+    expect(result).toStrictEqual({
+      turnRotation: [testPlayer2.toString()],
       currentMove: {
         cards: playerAction.cardsPlayed,
         play: 'single',
-        player: testPlayer2,
-        playersInPlay: [testPlayer2],
+        player: testPlayer2.toString(),
+        playersInPlay: [testPlayer2.toString()],
       },
       playerStates: [
         {
-          player: testPlayer1,
+          player: testPlayer1.toString(),
           cardCount: 0,
         },
         {
-          player: testPlayer2,
+          player: testPlayer2.toString(),
           cardCount: 3,
         },
       ],
@@ -493,7 +503,7 @@ describe('updateGameStateFromPlay', () => {
     const result = updateGameStateFromPlay(
       testPlayer1,
       playerAction,
-      gameState
+      gameState,
     );
 
     expect(result.success).toBe(true);
@@ -532,7 +542,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(false);
@@ -572,7 +582,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(true);
@@ -620,7 +630,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(true);
@@ -666,7 +676,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(true);
@@ -712,7 +722,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(false);
@@ -758,7 +768,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(true);
@@ -811,7 +821,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(true);
@@ -859,7 +869,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(false);
@@ -908,7 +918,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(true);
@@ -964,7 +974,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(true);
@@ -1014,7 +1024,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(false);
@@ -1065,7 +1075,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(true);
@@ -1114,7 +1124,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(false);
@@ -1160,7 +1170,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(false);
@@ -1211,7 +1221,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(true);
@@ -1267,7 +1277,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(false);
@@ -1319,7 +1329,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(false);
@@ -1382,7 +1392,7 @@ describe('updateGameStateFromPlay', () => {
       const result = updateGameStateFromPlay(
         testPlayer2,
         playerAction,
-        gameState
+        gameState,
       );
 
       expect(result.success).toBe(true);

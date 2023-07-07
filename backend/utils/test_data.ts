@@ -1,7 +1,7 @@
 import { Card } from '../schema';
 import { SUIT_VALUES, CARD_VALUES } from './enums';
 
-export const deckOfCards: Card[] = [
+const deckOfCards: Card[] = [
   { id: 0, value: CARD_VALUES.THREE, suit: SUIT_VALUES.SPADES },
   { id: 1, value: CARD_VALUES.THREE, suit: SUIT_VALUES.CLUBS },
   { id: 2, value: CARD_VALUES.THREE, suit: SUIT_VALUES.DIAMONDS },
@@ -55,3 +55,5 @@ export const deckOfCards: Card[] = [
   { id: 50, value: CARD_VALUES.TWO, suit: SUIT_VALUES.DIAMONDS },
   { id: 51, value: CARD_VALUES.TWO, suit: SUIT_VALUES.HEARTS },
 ];
+
+export default deckOfCards;

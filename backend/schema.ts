@@ -5,8 +5,8 @@ const typeDefs = `
     allPlayers: [String]!
   }
   type Mutation {
-    hostGame(gameInput: GameInput!): String!
-    joinGame(gameInput: GameInput!): String! 
+    hostGame(gameInput: GameInput!): GameOutput!
+    joinGame(gameInput: GameInput!): GameOutput! 
     startGame: Void
     playerMove(playerAction: PlayerAction!): GameState!
   }
@@ -20,6 +20,10 @@ const typeDefs = `
   input GameInput {
     name: String!
     roomName: String!
+  }
+  type GameOutput {
+    lobbyId: String!
+    token: String!
   }
   type Card {
     id: Int!
@@ -62,7 +66,7 @@ export type Card = {
   suit: number;
 };
 
-export type GameState = {
+export interface GameState {
   turnRotation: Types.ObjectId[];
   currentMove: {
     cards: Card[];
@@ -74,7 +78,7 @@ export type GameState = {
     player: Types.ObjectId;
     cardCount: number;
   }[];
-};
+}
 
 export interface GameStateUpdateResult {
   updatedGameState: GameState;

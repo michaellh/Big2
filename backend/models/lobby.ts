@@ -1,7 +1,7 @@
 import { Schema, Types, model } from 'mongoose';
 
 interface ILobby {
-  code: String;
+  code: string;
   host: {
     type: Types.ObjectId;
     required: true;
@@ -20,7 +20,7 @@ const schema = new Schema<ILobby>(
     players: [Schema.Types.ObjectId],
     gameState: Schema.Types.ObjectId,
   },
-  { collection: 'lobby' }
+  { collection: 'lobby' },
 );
 
 const Lobby = model<ILobby>('Lobby', schema);

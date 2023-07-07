@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
@@ -60,7 +61,7 @@ const start = async () => {
         return {};
       },
     },
-    wsServer
+    wsServer,
   );
 
   const server = new ApolloServer({
@@ -102,12 +103,12 @@ const start = async () => {
 
         return {};
       },
-    })
+    }),
   );
 
   httpServer.listen(config.PORT, () =>
-    console.log(`Server is now running on http://localhost:${config.PORT}`)
+    console.log(`Server is now running on http://localhost:${config.PORT}`),
   );
 };
 
-start();
+await start();
