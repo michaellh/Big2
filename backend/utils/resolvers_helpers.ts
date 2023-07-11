@@ -10,7 +10,7 @@ export const selectRandomCards = (
   deckOfCards: Card[],
   players: number,
 ): Card[][] => {
-  const handSize = 13;
+  const handSize = 2;
   const shuffledCards = [...deckOfCards].sort(() => Math.random() - 0.5);
   const playerCards: Card[][] = [];
 
@@ -109,6 +109,20 @@ export function updateCurrentMove(
       gameStateCopy.currentMove.playersInPlay.shift();
       const [topPlayer] = gameStateCopy.currentMove.playersInPlay;
       gameStateCopy.currentMove.player = topPlayer;
+      playerState.placementRank = gameStateCopy.nextPlacementRank;
+      gameStateCopy.nextPlacementRank += 1;
+
+      if (
+        gameStateCopy.nextPlacementRank === gameStateCopy.playerStates.length
+      ) {
+        // assign last rank to last player
+        const lastRankPlayer = gameStateCopy.playerStates.find(
+          (state) => state.placementRank === 0,
+        );
+        if (lastRankPlayer) {
+          lastRankPlayer.placementRank = gameStateCopy.nextPlacementRank;
+        }
+      }
     } else {
       const currentPlayer = gameStateCopy.currentMove.playersInPlay.shift();
       if (currentPlayer) {

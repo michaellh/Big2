@@ -36,6 +36,10 @@ module.exports = {
     'no-case-declarations': 'off',
     'react/react-in-jsx-scope': 0,
     'react/function-component-definition': [2, { namedComponents: 'arrow-function' }],
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      {"checksVoidReturn": {"attributes": false}}
+    ],
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {

@@ -16,11 +16,13 @@ interface CurrentMove {
 interface PlayerState {
   player: string;
   cardCount: number;
+  placementRank: number;
 }
 interface GameState {
   turnRotation: [string];
   currentMove: CurrentMove;
   playerStates: [PlayerState];
+  nextPlacementRank: number;
 }
 interface SubscriptionData {
   gameStart: {
@@ -33,6 +35,7 @@ const GAME_START_SUBSCRIPTION = gql`
   subscription OnStartGame {
     gameStart {
       cards {
+        id
         value
         suit
       }
@@ -51,11 +54,9 @@ const GAME_START_SUBSCRIPTION = gql`
         playerStates {
           player
           cardCount
+          placementRank
         }
-        playerStates {
-          player
-          cardCount
-        }
+        nextPlacementRank
       }
     }
   }
@@ -95,9 +96,7 @@ const Lobby = () => {
     // starting a game returns the gamestate and cards
     // gamestate should be returned with its id
     // navigate(`/game:${event.target.value}`);
-    const data = await startGame();
-    console.log('startGame', data);
-    // navigate('/game');
+    await startGame();
   };
 
   return (
@@ -107,7 +106,7 @@ const Lobby = () => {
       </header>
       <button
         type='button'
-        onClick={() => handleStartGame}
+        onClick={handleStartGame}
       >
         Start Game
       </button>

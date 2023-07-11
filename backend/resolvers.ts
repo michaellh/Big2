@@ -94,12 +94,7 @@ const resolvers = {
         const distributedCards = selectRandomCards(deckOfCards, players.length);
         const { player: lowestCardPlayer } = distributedCards.reduce(
           (lowest, cards, index) => {
-            cards.sort((a, b) => {
-              if (a.value !== b.value) {
-                return a.value - b.value;
-              }
-              return a.suit - b.suit;
-            });
+            cards.sort((a, b) => a.id - b.id);
 
             const lowestCard = cards[0];
             if (isCardLower(lowestCard, lowest.card)) {
@@ -134,18 +129,11 @@ const resolvers = {
         };
         gameState.playerStates = players.map((player) => ({
           player,
-          cardCount: 13,
+          cardCount: 2,
+          placementRank: 0,
         }));
+        gameState.nextPlacementRank = 1;
         await gameState.save();
-
-        // players.forEach(async (player, index): Promise<void> => {
-        //   await pubsub.publish(`GAME_START_${player.toString()}`, {
-        //     gameStart: {
-        //       cards: distributedCards[index],
-        //       gameState,
-        //     },
-        //   });
-        // });
         await Promise.all(
           players.map(async (player, index) => {
             await pubsub.publish(`GAME_START_${player.toString()}`, {
@@ -186,6 +174,7 @@ const resolvers = {
             gameState.turnRotation = updatedGameState.turnRotation;
             gameState.currentMove = updatedGameState.currentMove;
             gameState.playerStates = updatedGameState.playerStates;
+            gameState.nextPlacementRank = updatedGameState.nextPlacementRank;
             await gameState.save();
 
             await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
@@ -228,6 +217,13 @@ const resolvers = {
 
       return gameState;
     },
+    // endGame: async (
+    //   _root: unknown,
+    //   args: { playerAction: PlayerAction },
+    //   context: { user: string },
+    // ) => {
+    //   // needs to receive the gamestate _id to delete it from the client
+    // }
   },
   Subscription: {
     gameStart: {

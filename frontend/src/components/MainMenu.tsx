@@ -26,7 +26,7 @@ const MainMenu = () => {
   const [hostGame] = useMutation(HOST_GAME);
   const [joinGame] = useMutation(JOIN_GAME);
 
-  const handleHostGame = async (event: FormEvent) => {
+  const handleHostGame = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
     localStorage.removeItem('user-token');
 
@@ -107,13 +107,13 @@ const MainMenu = () => {
       </div>
       <button
         type='button'
-        onClick={() => handleHostGame}
+        onClick={handleHostGame}
       >
         Host Game
       </button>
       <button
         type='button'
-        onClick={() => handleJoinGame}
+        onClick={handleJoinGame}
       >
         Join Game
       </button>

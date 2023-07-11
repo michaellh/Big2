@@ -1,4 +1,3 @@
-/* eslint-disable operator-linebreak */
 import ReactDOM from 'react-dom/client';
 import {
   ApolloClient,

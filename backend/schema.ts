@@ -48,11 +48,13 @@ const typeDefs = `
   type PlayerState {
     player: String!
     cardCount: Int!
+    placementRank: Int!
   }
   type GameState {
     turnRotation: [String!]
     currentMove: CurrentMove!
     playerStates: [PlayerState]
+    nextPlacementRank: Int!
   }
   type GameStartState {
     cards: [Card!]!
@@ -77,7 +79,9 @@ export interface GameState {
   playerStates: {
     player: Types.ObjectId;
     cardCount: number;
+    placementRank: number;
   }[];
+  nextPlacementRank: number;
 }
 
 export interface GameStateUpdateResult {

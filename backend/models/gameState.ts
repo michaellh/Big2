@@ -17,7 +17,9 @@ interface IGameState {
   playerStates: {
     player: Types.ObjectId;
     cardCount: number;
+    placementRank: number;
   }[];
+  nextPlacementRank: number;
 }
 
 const schema = new Schema<IGameState>(
@@ -45,10 +47,12 @@ const schema = new Schema<IGameState>(
       {
         player: Schema.Types.ObjectId,
         cardCount: Number,
+        placementRank: Number,
       },
     ],
+    nextPlacementRank: Number,
   },
-  { collection: 'gameState' }
+  { collection: 'gameState' },
 );
 
 const GameStateModel = model<IGameState>('GameState', schema);
