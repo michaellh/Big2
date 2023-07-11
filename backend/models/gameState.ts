@@ -6,19 +6,23 @@ interface ICard {
   suit: number;
 }
 
+interface ICurrentMove {
+  cards: ICard[];
+  play: string;
+  player: Types.ObjectId;
+  playersInPlay: Types.ObjectId[];
+}
+
+interface IPlayerState {
+  player: Types.ObjectId;
+  cardCount: number;
+  placementRank: number;
+}
+
 interface IGameState {
   turnRotation: Types.ObjectId[];
-  currentMove: {
-    cards: ICard[];
-    play: string;
-    player: Types.ObjectId;
-    playersInPlay: Types.ObjectId[];
-  };
-  playerStates: {
-    player: Types.ObjectId;
-    cardCount: number;
-    placementRank: number;
-  }[];
+  currentMove: ICurrentMove;
+  playerStates: IPlayerState[];
   nextPlacementRank: number;
 }
 

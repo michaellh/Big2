@@ -2,8 +2,8 @@ import jwt from 'jsonwebtoken';
 import { PubSub } from 'graphql-subscriptions';
 import { GraphQLError } from 'graphql';
 import { Types } from 'mongoose';
-import User from './models/user';
-import Lobby from './models/lobby';
+import UserModel from './models/user';
+import LobbyModel from './models/lobby';
 import GameStateModel from './models/gameState';
 import deckOfCards from './utils/test_data';
 import { PlayerAction, GameInput } from './schema';
@@ -18,61 +18,75 @@ const pubsub = new PubSub();
 
 const resolvers = {
   Query: {
-    allPlayers: () => User.find({}),
+    allPlayers: () => UserModel.find({}),
   },
   Mutation: {
     hostGame: async (_root: unknown, args: { gameInput: GameInput }) => {
       try {
         const { name, roomName } = args.gameInput;
 
-        if (typeof name !== 'string') {
-          throw new Error('Invalid name');
+        const lobbyCodeExists = await LobbyModel.findOne({ code: roomName });
+        if (lobbyCodeExists) {
+          throw new GraphQLError('Lobby code already exists!', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: roomName,
+            },
+          });
         }
 
-        const hostUser = new User({ name });
+        const hostUser = new UserModel({ name });
         await hostUser.save();
         const hostUserId = hostUser._id;
 
-        const lobby = new Lobby({
+        const lobby = new LobbyModel({
           code: roomName,
           host: hostUserId,
           players: [hostUserId],
         });
         await lobby.save();
+        const lobbyId = lobby._id;
 
         const token = jwt.sign(hostUserId.toString(), config.JWT_SECRET);
 
         return {
-          lobbyId: lobby._id,
+          lobbyId,
           token,
         };
-      } catch (error) {
-        throw new GraphQLError('Attempt to host game failed!');
+      } catch (err) {
+        throw new GraphQLError(`Attempt to host game failed: ${err}`);
       }
     },
     joinGame: async (_root: unknown, args: { gameInput: GameInput }) => {
       try {
         const { name, roomName } = args.gameInput;
-        const newUser = new User({ name });
 
-        await newUser.save();
-        const newUserId = newUser._id;
+        const lobbyExists = await LobbyModel.findOne({ code: roomName });
+        if (lobbyExists) {
+          const newUser = new UserModel({ name });
+          await newUser.save();
+          const newUserId = newUser._id;
 
-        const lobby = await Lobby.findOne({ code: roomName });
-        if (lobby) {
-          lobby.players.push(newUserId);
-          await lobby.save();
+          lobbyExists.players.push(newUserId);
+          await lobbyExists.save();
+          const lobbyId = lobbyExists._id;
 
           const token = jwt.sign(newUserId.toString(), config.JWT_SECRET);
 
           return {
-            lobbyId: lobby._id,
+            lobbyId,
             token,
           };
         }
-        throw new GraphQLError('Failed to find lobby!');
+
+        throw new GraphQLError('Failed to find lobby!', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: roomName,
+          },
+        });
       } catch (err) {
-        throw new GraphQLError('Attempt to join game failed!');
+        throw new GraphQLError(`Attempt to join game failed: ${err}`);
       }
     },
     startGame: async (
@@ -81,16 +95,34 @@ const resolvers = {
       context: { user: string },
     ) => {
       try {
+        const { user } = context;
         let players: Types.ObjectId[] = [];
 
-        const lobby = await Lobby.findOne({
-          host: new Types.ObjectId(context.user),
+        const lobbyExists = await LobbyModel.findOne({
+          host: new Types.ObjectId(user),
         });
-        if (lobby) {
-          players = lobby.players;
+        if (lobbyExists) {
+          players = lobbyExists.players;
         } else {
-          throw new GraphQLError('Failed to find lobby!');
+          throw new GraphQLError('User is not the host of a lobby!', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: user,
+            },
+          });
         }
+        if (players.length < 2) {
+          throw new GraphQLError(
+            'Minimum # of players to start a new game is 2!',
+            {
+              extensions: {
+                code: 'BAD_USER_INPUT',
+                invalidArgs: user,
+              },
+            },
+          );
+        }
+
         const distributedCards = selectRandomCards(deckOfCards, players.length);
         const { player: lowestCardPlayer } = distributedCards.reduce(
           (lowest, cards, index) => {
@@ -129,7 +161,7 @@ const resolvers = {
         };
         gameState.playerStates = players.map((player) => ({
           player,
-          cardCount: 2,
+          cardCount: 13,
           placementRank: 0,
         }));
         gameState.nextPlacementRank = 1;
@@ -155,6 +187,7 @@ const resolvers = {
     ) => {
       const { action, cardsPlayed } = args.playerAction;
       const { user } = context;
+
       const userId = new Types.ObjectId(user);
       const gameState = await GameStateModel.findOne({
         playerStates: {
@@ -164,11 +197,8 @@ const resolvers = {
 
       if (gameState) {
         if (action === 'play') {
-          const { updatedGameState, success } = updateGameStateFromPlay(
-            userId,
-            { action, cardsPlayed },
-            gameState,
-          );
+          const { updatedGameState, success, failCause } =
+            updateGameStateFromPlay(userId, { action, cardsPlayed }, gameState);
 
           if (success) {
             gameState.turnRotation = updatedGameState.turnRotation;
@@ -179,7 +209,12 @@ const resolvers = {
 
             await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
           } else {
-            throw new GraphQLError('trash play');
+            throw new GraphQLError(failCause, {
+              extensions: {
+                code: 'BAD_USER_INPUT',
+                invalidArgs: cardsPlayed,
+              },
+            });
           }
         }
 
@@ -212,10 +247,13 @@ const resolvers = {
           await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
         }
       } else {
-        throw new GraphQLError('Invalid player!');
+        throw new GraphQLError('Player belongs to no existing games!', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: user,
+          },
+        });
       }
-
-      return gameState;
     },
     // endGame: async (
     //   _root: unknown,

@@ -6,7 +6,7 @@ interface ILobby {
     type: Types.ObjectId;
     required: true;
   };
-  players: [Types.ObjectId];
+  players: Types.ObjectId[];
   gameState: Types.ObjectId;
 }
 
@@ -23,6 +23,6 @@ const schema = new Schema<ILobby>(
   { collection: 'lobby' },
 );
 
-const Lobby = model<ILobby>('Lobby', schema);
+const LobbyModel = model<ILobby>('Lobby', schema);
 
-export default Lobby;
+export default LobbyModel;

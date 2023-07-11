@@ -10,7 +10,7 @@ export const selectRandomCards = (
   deckOfCards: Card[],
   players: number,
 ): Card[][] => {
-  const handSize = 2;
+  const handSize = 13;
   const shuffledCards = [...deckOfCards].sort(() => Math.random() - 0.5);
   const playerCards: Card[][] = [];
 
@@ -164,11 +164,13 @@ export const updateGameStateFromPlay = (
   ) as GameState;
   const { currentMove } = gameStateCopy;
   let success = false;
+  let failCause = '';
 
   if (!user.equals(currentMove.playersInPlay[0])) {
     return {
       updatedGameState: gameStateCopy,
       success,
+      failCause: `${user}, it's ${currentMove.playersInPlay[0]}'s turn`,
     };
   }
 
@@ -199,6 +201,8 @@ export const updateGameStateFromPlay = (
         playerAction,
       );
       success = true;
+    } else {
+      failCause = 'Not a valid play';
     }
   }
 
@@ -336,5 +340,6 @@ export const updateGameStateFromPlay = (
   return {
     updatedGameState: gameStateCopy,
     success,
+    failCause: failCause === '' ? 'Play successful' : failCause,
   };
 };

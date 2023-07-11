@@ -11,9 +11,9 @@ const schema = new Schema<IUser>(
       required: true,
     },
   },
-  { collection: 'user' }
+  { collection: 'user' },
 );
 
-const User = model<IUser>('User', schema);
+const UserModel = model<IUser>('User', schema);
 
-export default User;
+export default UserModel;

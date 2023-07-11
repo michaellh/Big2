@@ -8,7 +8,7 @@ const typeDefs = `
     hostGame(gameInput: GameInput!): GameOutput!
     joinGame(gameInput: GameInput!): GameOutput! 
     startGame: Void
-    playerMove(playerAction: PlayerAction!): GameState!
+    playerMove(playerAction: PlayerAction!): Void
   }
   type Subscription {
     gameStart: GameStartState!
@@ -87,6 +87,7 @@ export interface GameState {
 export interface GameStateUpdateResult {
   updatedGameState: GameState;
   success: boolean;
+  failCause: string;
 }
 
 export interface GameInput {

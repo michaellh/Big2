@@ -388,12 +388,15 @@ describe('updateCurrentMove', () => {
         {
           player: testPlayer1,
           cardCount: 2,
+          placementRank: 0,
         },
         {
           player: testPlayer2,
           cardCount: 3,
+          placementRank: 0,
         },
       ],
+      nextPlacementRank: 1,
     };
   });
 
@@ -422,12 +425,15 @@ describe('updateCurrentMove', () => {
         {
           player: testPlayer1.toString(),
           cardCount: 1,
+          placementRank: 0,
         },
         {
           player: testPlayer2.toString(),
           cardCount: 3,
+          placementRank: 0,
         },
       ],
+      nextPlacementRank: 1,
     });
   });
 
@@ -457,12 +463,15 @@ describe('updateCurrentMove', () => {
         {
           player: testPlayer1.toString(),
           cardCount: 0,
+          placementRank: 1,
         },
         {
           player: testPlayer2.toString(),
           cardCount: 3,
+          placementRank: 2,
         },
       ],
+      nextPlacementRank: 2,
     });
   });
 });
@@ -485,12 +494,15 @@ describe('updateGameStateFromPlay', () => {
         {
           player: testPlayer1,
           cardCount: 2,
+          placementRank: 0,
         },
         {
           player: testPlayer2,
           cardCount: 3,
+          placementRank: 0,
         },
       ],
+      nextPlacementRank: 1,
     };
   });
 
@@ -519,12 +531,15 @@ describe('updateGameStateFromPlay', () => {
         {
           player: testPlayer1.toString(),
           cardCount: 1,
+          placementRank: 0,
         },
         {
           player: testPlayer2.toString(),
           cardCount: 3,
+          placementRank: 0,
         },
       ],
+      nextPlacementRank: 1,
     });
   });
 
@@ -558,12 +573,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 3,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -598,12 +616,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -646,12 +667,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 1,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -692,12 +716,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 3,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
   });
@@ -738,12 +765,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 3,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -784,12 +814,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 1,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -837,12 +870,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
   });
@@ -885,12 +921,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 3,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -934,12 +973,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -990,12 +1032,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 1,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
   });
@@ -1040,12 +1085,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 3,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -1091,12 +1139,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 6,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
   });
@@ -1140,12 +1191,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 3,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -1186,12 +1240,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 3,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -1237,12 +1294,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 6,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
   });
@@ -1293,12 +1353,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 3,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -1345,12 +1408,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 3,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
 
@@ -1408,12 +1474,15 @@ describe('updateGameStateFromPlay', () => {
           {
             player: testPlayer1.toString(),
             cardCount: 2,
+            placementRank: 0,
           },
           {
             player: testPlayer2.toString(),
             cardCount: 3,
+            placementRank: 0,
           },
         ],
+        nextPlacementRank: 1,
       });
     });
   });
