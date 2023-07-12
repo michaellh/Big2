@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import {
   selectRandomCards,
   isSingle,
@@ -372,8 +371,8 @@ describe('isCardHigher', () => {
 
 describe('updateCurrentMove', () => {
   let gameState: GameState;
-  const testPlayer1 = new Types.ObjectId();
-  const testPlayer2 = new Types.ObjectId();
+  const testPlayer1 = 'a';
+  const testPlayer2 = 'b';
 
   beforeEach(() => {
     gameState = {
@@ -414,21 +413,21 @@ describe('updateCurrentMove', () => {
     );
 
     expect(result).toStrictEqual({
-      turnRotation: [testPlayer2.toString(), testPlayer1.toString()],
+      turnRotation: [testPlayer2, testPlayer1],
       currentMove: {
         cards: playerAction.cardsPlayed,
         play: 'single',
-        player: testPlayer1.toString(),
-        playersInPlay: [testPlayer2.toString(), testPlayer1.toString()],
+        player: testPlayer1,
+        playersInPlay: [testPlayer2, testPlayer1],
       },
       playerStates: [
         {
-          player: testPlayer1.toString(),
+          player: testPlayer1,
           cardCount: 1,
           placementRank: 0,
         },
         {
-          player: testPlayer2.toString(),
+          player: testPlayer2,
           cardCount: 3,
           placementRank: 0,
         },
@@ -452,21 +451,21 @@ describe('updateCurrentMove', () => {
     );
 
     expect(result).toStrictEqual({
-      turnRotation: [testPlayer2.toString()],
+      turnRotation: [testPlayer2],
       currentMove: {
         cards: playerAction.cardsPlayed,
         play: 'single',
-        player: testPlayer2.toString(),
-        playersInPlay: [testPlayer2.toString()],
+        player: testPlayer2,
+        playersInPlay: [testPlayer2],
       },
       playerStates: [
         {
-          player: testPlayer1.toString(),
+          player: testPlayer1,
           cardCount: 0,
           placementRank: 1,
         },
         {
-          player: testPlayer2.toString(),
+          player: testPlayer2,
           cardCount: 3,
           placementRank: 2,
         },
@@ -477,8 +476,8 @@ describe('updateCurrentMove', () => {
 });
 
 describe('updateGameStateFromPlay', () => {
-  const testPlayer1 = new Types.ObjectId();
-  const testPlayer2 = new Types.ObjectId();
+  const testPlayer1 = 'a';
+  const testPlayer2 = 'b';
   let gameState: GameState;
 
   beforeEach(() => {
@@ -520,21 +519,21 @@ describe('updateGameStateFromPlay', () => {
 
     expect(result.success).toBe(true);
     expect(result.updatedGameState).toStrictEqual({
-      turnRotation: [testPlayer2.toString(), testPlayer1.toString()],
+      turnRotation: [testPlayer2, testPlayer1],
       currentMove: {
         cards: playerAction.cardsPlayed,
         play: 'single',
-        player: testPlayer1.toString(),
-        playersInPlay: [testPlayer2.toString(), testPlayer1.toString()],
+        player: testPlayer1,
+        playersInPlay: [testPlayer2, testPlayer1],
       },
       playerStates: [
         {
-          player: testPlayer1.toString(),
+          player: testPlayer1,
           cardCount: 1,
           placementRank: 0,
         },
         {
-          player: testPlayer2.toString(),
+          player: testPlayer2,
           cardCount: 3,
           placementRank: 0,
         },
@@ -562,21 +561,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(false);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: gameState.currentMove.cards,
           play: gameState.currentMove.play,
-          player: gameState.currentMove.player.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: gameState.currentMove.player,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 3,
             placementRank: 0,
           },
@@ -605,21 +604,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: playerAction.cardsPlayed,
           play: gameState.currentMove.play,
-          player: playerAction.name.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: playerAction.name,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 2,
             placementRank: 0,
           },
@@ -656,21 +655,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: playerAction.cardsPlayed,
           play: 'chop',
-          player: playerAction.name.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: playerAction.name,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 1,
             placementRank: 0,
           },
@@ -705,21 +704,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: playerAction.cardsPlayed,
           play: 'bomb',
-          player: playerAction.name.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: playerAction.name,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 3,
             placementRank: 0,
           },
@@ -754,21 +753,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(false);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: gameState.currentMove.cards,
           play: gameState.currentMove.play,
-          player: gameState.currentMove.player.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: gameState.currentMove.player,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 3,
             placementRank: 0,
           },
@@ -803,21 +802,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: playerAction.cardsPlayed,
           play: gameState.currentMove.play,
-          player: playerAction.name.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: playerAction.name,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 1,
             placementRank: 0,
           },
@@ -859,21 +858,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: playerAction.cardsPlayed,
           play: 'chop',
-          player: playerAction.name.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: playerAction.name,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 2,
             placementRank: 0,
           },
@@ -910,21 +909,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(false);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: gameState.currentMove.cards,
           play: gameState.currentMove.play,
-          player: gameState.currentMove.player.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: gameState.currentMove.player,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 3,
             placementRank: 0,
           },
@@ -962,21 +961,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: playerAction.cardsPlayed,
           play: gameState.currentMove.play,
-          player: playerAction.name.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: playerAction.name,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 2,
             placementRank: 0,
           },
@@ -1021,21 +1020,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: playerAction.cardsPlayed,
           play: 'chop',
-          player: playerAction.name.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: playerAction.name,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 1,
             placementRank: 0,
           },
@@ -1074,21 +1073,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(false);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: gameState.currentMove.cards,
           play: gameState.currentMove.play,
-          player: gameState.currentMove.player.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: gameState.currentMove.player,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 3,
             placementRank: 0,
           },
@@ -1128,21 +1127,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: playerAction.cardsPlayed,
           play: gameState.currentMove.play,
-          player: playerAction.name.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: playerAction.name,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 6,
             placementRank: 0,
           },
@@ -1180,21 +1179,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(false);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: gameState.currentMove.cards,
           play: gameState.currentMove.play,
-          player: gameState.currentMove.player.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: gameState.currentMove.player,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 3,
             placementRank: 0,
           },
@@ -1229,21 +1228,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(false);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: gameState.currentMove.cards,
           play: gameState.currentMove.play,
-          player: gameState.currentMove.player.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: gameState.currentMove.player,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 3,
             placementRank: 0,
           },
@@ -1283,21 +1282,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: playerAction.cardsPlayed,
           play: gameState.currentMove.play,
-          player: playerAction.name.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: playerAction.name,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 6,
             placementRank: 0,
           },
@@ -1342,21 +1341,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(false);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: gameState.currentMove.cards,
           play: gameState.currentMove.play,
-          player: gameState.currentMove.player.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: gameState.currentMove.player,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 3,
             placementRank: 0,
           },
@@ -1397,21 +1396,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(false);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: gameState.currentMove.cards,
           play: gameState.currentMove.play,
-          player: gameState.currentMove.player.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: gameState.currentMove.player,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 3,
             placementRank: 0,
           },
@@ -1463,21 +1462,21 @@ describe('updateGameStateFromPlay', () => {
 
       expect(result.success).toBe(true);
       expect(result.updatedGameState).toStrictEqual({
-        turnRotation: [testPlayer1.toString(), testPlayer2.toString()],
+        turnRotation: [testPlayer1, testPlayer2],
         currentMove: {
           cards: playerAction.cardsPlayed,
           play: gameState.currentMove.play,
-          player: playerAction.name.toString(),
-          playersInPlay: [testPlayer1.toString(), testPlayer2.toString()],
+          player: playerAction.name,
+          playersInPlay: [testPlayer1, testPlayer2],
         },
         playerStates: [
           {
-            player: testPlayer1.toString(),
+            player: testPlayer1,
             cardCount: 2,
             placementRank: 0,
           },
           {
-            player: testPlayer2.toString(),
+            player: testPlayer2,
             cardCount: 3,
             placementRank: 0,
           },

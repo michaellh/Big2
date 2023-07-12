@@ -29,25 +29,7 @@ const PLAYER_MOVE_SUBSCRIPTION = gql`
 `;
 const PLAYER_MOVE = gql`
   mutation playerMove($playerAction: PlayerAction!) {
-    playerMove(playerAction: $playerAction) {
-      turnRotation
-      currentMove {
-        cards {
-          id
-          value
-          suit
-        }
-        play
-        player
-        playersInPlay
-      }
-      playerStates {
-        player
-        cardCount
-        placementRank
-      }
-      nextPlacementRank
-    }
+    playerMove(playerAction: $playerAction)
   }
 `;
 
@@ -75,7 +57,7 @@ const Game = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as
-    | { cards: Card[]; gameState: GameState }
+    | { name: string; cards: Card[]; gameState: GameState }
     | undefined;
   if (
     state &&
@@ -215,6 +197,7 @@ const Game = () => {
       <header className='App-header'>
         <p>Big 2</p>
       </header>
+      <p>{`You are ${state?.name}`}</p>
       <h3>Table</h3>
       <div>{`Current Player's Turn: ${gameState.turnRotation.at(0)}`}</div>
       {gameState.playerStates.map((playerState: PlayerState) => (

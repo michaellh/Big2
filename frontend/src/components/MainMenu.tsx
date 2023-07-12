@@ -50,7 +50,11 @@ const MainMenu = () => {
 
     if (data) {
       localStorage.setItem('user-token', data.hostGame.token);
-      navigate(`/lobby/${data.hostGame.lobbyId}`);
+      navigate(`/lobby/${data.hostGame.lobbyId}`, {
+        state: {
+          name,
+        },
+      });
     }
   };
 
@@ -78,7 +82,11 @@ const MainMenu = () => {
 
     if (data) {
       localStorage.setItem('user-token', data.joinGame.token);
-      navigate(`/lobby/${data.joinGame.lobbyId}`);
+      navigate(`/lobby/${data.joinGame.lobbyId}`, {
+        state: {
+          name,
+        },
+      });
     }
   };
 

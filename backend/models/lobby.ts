@@ -1,11 +1,8 @@
 import { Schema, Types, model } from 'mongoose';
 
-interface ILobby {
+export interface ILobby {
   code: string;
-  host: {
-    type: Types.ObjectId;
-    required: true;
-  };
+  host: Types.ObjectId;
   players: Types.ObjectId[];
   gameState: Types.ObjectId;
 }
@@ -15,10 +12,19 @@ const schema = new Schema<ILobby>(
     code: String,
     host: {
       type: Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
     },
-    players: [Schema.Types.ObjectId],
-    gameState: Schema.Types.ObjectId,
+    players: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    gameState: {
+      type: Schema.Types.ObjectId,
+      ref: 'GameState',
+    },
   },
   { collection: 'lobby' },
 );

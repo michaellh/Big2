@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { gql, useMutation, useSubscription } from '@apollo/client';
 
 interface Card {
@@ -71,6 +71,8 @@ const START_GAME = gql`
 // if yes then show start game otherwise show waiting to start game or something
 const Lobby = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as { name: string } | undefined;
   const [startGame] = useMutation(START_GAME);
   console.log('Lobby token', localStorage.getItem('user-token'));
   console.log('subscribed to game start');
@@ -82,6 +84,7 @@ const Lobby = () => {
         const { cards, gameState } = subData;
         navigate('/game', {
           state: {
+            name: state?.name,
             cards,
             gameState,
           },
@@ -104,6 +107,7 @@ const Lobby = () => {
       <header className='App-header'>
         <p>Big 2</p>
       </header>
+      <p>{`Hello ${state?.name}`}</p>
       <button
         type='button'
         onClick={handleStartGame}

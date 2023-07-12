@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import {
   Card,
   GameState,
@@ -86,7 +85,7 @@ export const isChop = (cards: Card[], chops = 3): boolean => {
 };
 
 export function updateCurrentMove(
-  user: Types.ObjectId,
+  user: string,
   gameState: GameState,
   play: string,
   playerAction: PlayerAction,
@@ -98,7 +97,7 @@ export function updateCurrentMove(
   gameStateCopy.currentMove.cards = playerAction.cardsPlayed;
 
   const playerState = gameStateCopy.playerStates.find(
-    (state) => state.player.toString() === user.toString(),
+    (state) => state.player === user,
   );
 
   if (playerState) {
@@ -139,13 +138,6 @@ export function updateCurrentMove(
   return gameStateCopy;
 }
 
-export function isCardLower(cardA: Card, cardB: Card): boolean {
-  if (cardA.value !== cardB.value) {
-    return cardA.value < cardB.value;
-  }
-  return cardA.suit < cardB.suit;
-}
-
 export function isCardHigher(cardA: Card, cardB: Card): boolean {
   if (cardA.value !== cardB.value) {
     return cardA.value > cardB.value;
@@ -154,7 +146,7 @@ export function isCardHigher(cardA: Card, cardB: Card): boolean {
 }
 
 export const updateGameStateFromPlay = (
-  user: Types.ObjectId,
+  user: string,
   playerAction: PlayerAction,
   gameState: GameState,
 ): GameStateUpdateResult => {
@@ -164,9 +156,9 @@ export const updateGameStateFromPlay = (
   ) as GameState;
   const { currentMove } = gameStateCopy;
   let success = false;
-  let failCause = '';
+  let failCause = 'Your play is trash!';
 
-  if (!user.equals(currentMove.playersInPlay[0])) {
+  if (user !== currentMove.playersInPlay[0]) {
     return {
       updatedGameState: gameStateCopy,
       success,
@@ -340,6 +332,6 @@ export const updateGameStateFromPlay = (
   return {
     updatedGameState: gameStateCopy,
     success,
-    failCause: failCause === '' ? 'Play successful' : failCause,
+    failCause: success ? 'Play successful' : failCause,
   };
 };

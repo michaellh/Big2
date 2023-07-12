@@ -40,5 +40,5 @@ const { insertedId: lobbyInsertId } = db.getCollection('lobby').insertOne({
 // delete all records
 use('games');
 db.user.deleteMany({})
-db.lobby.deleteMany({})
 db.gameState.deleteMany({})
+db.lobby.deleteMany({})

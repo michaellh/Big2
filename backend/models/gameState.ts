@@ -1,4 +1,4 @@
-import { Schema, Types, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 interface ICard {
   id: number;
@@ -9,18 +9,18 @@ interface ICard {
 interface ICurrentMove {
   cards: ICard[];
   play: string;
-  player: Types.ObjectId;
-  playersInPlay: Types.ObjectId[];
+  player: string;
+  playersInPlay: string[];
 }
 
 interface IPlayerState {
-  player: Types.ObjectId;
+  player: string;
   cardCount: number;
   placementRank: number;
 }
 
 interface IGameState {
-  turnRotation: Types.ObjectId[];
+  turnRotation: string[];
   currentMove: ICurrentMove;
   playerStates: IPlayerState[];
   nextPlacementRank: number;
@@ -28,10 +28,7 @@ interface IGameState {
 
 const schema = new Schema<IGameState>(
   {
-    turnRotation: {
-      type: [Schema.Types.ObjectId],
-      required: true,
-    },
+    turnRotation: [String],
     currentMove: {
       cards: [
         {
@@ -41,15 +38,12 @@ const schema = new Schema<IGameState>(
         },
       ],
       play: String,
-      player: Schema.Types.ObjectId,
-      playersInPlay: {
-        type: [Schema.Types.ObjectId],
-        required: true,
-      },
+      player: String,
+      playersInPlay: [String],
     },
     playerStates: [
       {
-        player: Schema.Types.ObjectId,
+        player: String,
         cardCount: Number,
         placementRank: Number,
       },

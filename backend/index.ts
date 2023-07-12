@@ -51,8 +51,8 @@ const start = async () => {
         if (auth && auth.startsWith('Bearer ')) {
           const token = auth.substring(7);
           try {
-            const user = jwt.verify(token, config.JWT_SECRET);
-            return { user };
+            const userId = jwt.verify(token, config.JWT_SECRET);
+            return { userId };
           } catch (error) {
             console.error('Token verification failed:', error);
           }
@@ -93,9 +93,9 @@ const start = async () => {
           const token = auth.substring(7);
 
           try {
-            const user = jwt.verify(token, config.JWT_SECRET);
+            const userId = jwt.verify(token, config.JWT_SECRET);
 
-            return { user };
+            return { userId };
           } catch (error) {
             console.error('Token verification failed:', error);
           }

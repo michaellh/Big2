@@ -1,5 +1,3 @@
-import { Types } from 'mongoose';
-
 const typeDefs = `
   type Query {
     allPlayers: [String]!
@@ -69,15 +67,15 @@ export type Card = {
 };
 
 export interface GameState {
-  turnRotation: Types.ObjectId[];
+  turnRotation: string[];
   currentMove: {
     cards: Card[];
     play: string;
-    player: Types.ObjectId;
-    playersInPlay: Types.ObjectId[];
+    player: string;
+    playersInPlay: string[];
   };
   playerStates: {
-    player: Types.ObjectId;
+    player: string;
     cardCount: number;
     placementRank: number;
   }[];

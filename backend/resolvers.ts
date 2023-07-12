@@ -2,15 +2,14 @@ import jwt from 'jsonwebtoken';
 import { PubSub } from 'graphql-subscriptions';
 import { GraphQLError } from 'graphql';
 import { Types } from 'mongoose';
-import UserModel from './models/user';
+import UserModel, { IUser } from './models/user';
 import LobbyModel from './models/lobby';
 import GameStateModel from './models/gameState';
 import deckOfCards from './utils/test_data';
-import { PlayerAction, GameInput } from './schema';
+import { GameInput, PlayerAction } from './schema';
 import {
   selectRandomCards,
   updateGameStateFromPlay,
-  isCardLower,
 } from './utils/resolvers_helpers';
 import config from './utils/config';
 
@@ -92,83 +91,78 @@ const resolvers = {
     startGame: async (
       _root: unknown,
       _args: unknown,
-      context: { user: string },
+      context: { userId: string },
     ) => {
       try {
-        const { user } = context;
-        let players: Types.ObjectId[] = [];
+        const { userId } = context;
 
         const lobbyExists = await LobbyModel.findOne({
-          host: new Types.ObjectId(user),
-        });
-        if (lobbyExists) {
-          players = lobbyExists.players;
-        } else {
+          host: new Types.ObjectId(userId),
+        }).populate<{ players: IUser[] }>('players');
+        if (!lobbyExists) {
           throw new GraphQLError('User is not the host of a lobby!', {
             extensions: {
               code: 'BAD_USER_INPUT',
-              invalidArgs: user,
+              invalidArgs: userId,
             },
           });
         }
-        if (players.length < 2) {
-          throw new GraphQLError(
-            'Minimum # of players to start a new game is 2!',
-            {
-              extensions: {
-                code: 'BAD_USER_INPUT',
-                invalidArgs: user,
-              },
+
+        const { players } = lobbyExists;
+        if (players.length < 2 || players.length > 4) {
+          throw new GraphQLError('Minimum 2 players and maximum 4 players!', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: userId,
             },
-          );
+          });
         }
 
         const distributedCards = selectRandomCards(deckOfCards, players.length);
-        const { player: lowestCardPlayer } = distributedCards.reduce(
-          (lowest, cards, index) => {
-            cards.sort((a, b) => a.id - b.id);
+        let lowestCardId = 51;
+        let lowestCardPlayerIndex = -1;
+        for (let i = 0; i < distributedCards.length; i += 1) {
+          distributedCards[i].sort((a, b) => a.id - b.id);
+          if (distributedCards[i][0].id < lowestCardId) {
+            lowestCardId = distributedCards[i][0].id;
+            lowestCardPlayerIndex = i;
+          }
+        }
 
-            const lowestCard = cards[0];
-            if (isCardLower(lowestCard, lowest.card)) {
-              return {
-                player: players[index].toString(),
-                card: lowestCard,
-              };
-            }
-            return lowest;
-          },
-          {
-            player: '',
-            card: {
-              id: 51,
-              value: 15,
-              suit: 4,
-            },
-          },
-        );
-        const firstPlayer = new Types.ObjectId(lowestCardPlayer);
+        if (lowestCardPlayerIndex > 0) {
+          const rotatedCardSets = distributedCards.splice(
+            0,
+            lowestCardPlayerIndex,
+          );
+          distributedCards.push(...rotatedCardSets);
+          const rotatedPlayers = players.splice(0, lowestCardPlayerIndex);
+          players.push(...rotatedPlayers);
+        }
 
         const gameState = new GameStateModel({});
-        gameState.turnRotation = players.filter(
-          (player) => !player.equals(firstPlayer),
-        );
-        gameState.turnRotation.unshift(firstPlayer);
-        gameState.currentMove = {
-          cards: [],
-          play: '',
-          player: firstPlayer,
-          playersInPlay: gameState.turnRotation,
-        };
-        gameState.playerStates = players.map((player) => ({
-          player,
-          cardCount: 13,
-          placementRank: 0,
-        }));
-        gameState.nextPlacementRank = 1;
+        gameState.turnRotation = players.map((player) => player.name);
+        Object.assign(gameState, {
+          currentMove: {
+            cards: [],
+            play: '',
+            player: gameState.turnRotation[0],
+            playersInPlay: gameState.turnRotation,
+          },
+          playerStates: players.map((player) => ({
+            player: player.name,
+            cardCount: 13,
+            placementRank: 0,
+          })),
+          nextPlacementRank: 1,
+        });
         await gameState.save();
+        const gameStateId = gameState._id;
+        lobbyExists.gameState = gameStateId;
+        await lobbyExists.save();
+
         await Promise.all(
           players.map(async (player, index) => {
-            await pubsub.publish(`GAME_START_${player.toString()}`, {
+            await pubsub.publish(`GAME_START_${player._id.toString()}`, {
               gameStart: {
                 cards: distributedCards[index],
                 gameState,
@@ -183,90 +177,98 @@ const resolvers = {
     playerMove: async (
       _root: unknown,
       args: { playerAction: PlayerAction },
-      context: { user: string },
+      context: { userId: string },
     ) => {
       const { action, cardsPlayed } = args.playerAction;
-      const { user } = context;
+      const { userId } = context;
 
-      const userId = new Types.ObjectId(user);
-      const gameState = await GameStateModel.findOne({
-        playerStates: {
-          $elemMatch: { player: userId },
-        },
-      });
-
-      if (gameState) {
-        if (action === 'play') {
-          const { updatedGameState, success, failCause } =
-            updateGameStateFromPlay(userId, { action, cardsPlayed }, gameState);
-
-          if (success) {
-            gameState.turnRotation = updatedGameState.turnRotation;
-            gameState.currentMove = updatedGameState.currentMove;
-            gameState.playerStates = updatedGameState.playerStates;
-            gameState.nextPlacementRank = updatedGameState.nextPlacementRank;
-            await gameState.save();
-
-            await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
-          } else {
-            throw new GraphQLError(failCause, {
-              extensions: {
-                code: 'BAD_USER_INPUT',
-                invalidArgs: cardsPlayed,
-              },
-            });
-          }
-        }
-
-        if (action === 'pass') {
-          gameState.currentMove.playersInPlay.shift();
-          const shiftPlayer = gameState.turnRotation.shift();
-          if (shiftPlayer) {
-            gameState.turnRotation.push(shiftPlayer);
-          }
-
-          if (gameState.currentMove.playersInPlay.length === 1) {
-            while (
-              !gameState.turnRotation[0].equals(gameState.currentMove.player)
-            ) {
-              const rotatePlayer = gameState.turnRotation.shift();
-
-              if (rotatePlayer) {
-                gameState.turnRotation.push(rotatePlayer);
-              }
-            }
-
-            gameState.currentMove.playersInPlay = gameState.turnRotation;
-            const [firstPlayer] = gameState.turnRotation;
-            gameState.currentMove.player = firstPlayer;
-            gameState.currentMove.cards = [];
-            gameState.currentMove.play = '';
-
-            await gameState.save();
-          }
-          await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
-        }
-      } else {
-        throw new GraphQLError('Player belongs to no existing games!', {
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        throw new GraphQLError('Player user does not exist!', {
           extensions: {
             code: 'BAD_USER_INPUT',
-            invalidArgs: user,
+            invalidArgs: userId,
           },
         });
       }
+
+      const lobby = await LobbyModel.findOne({
+        players: userId,
+      }).populate('gameState');
+      const gameState = await GameStateModel.findById(lobby?.gameState._id);
+      if (!gameState) {
+        throw new GraphQLError('Player belongs to no existing games!', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: userId,
+          },
+        });
+      }
+
+      if (action === 'play') {
+        const { updatedGameState, success, failCause } =
+          updateGameStateFromPlay(
+            user.name,
+            { action, cardsPlayed },
+            gameState,
+          );
+
+        if (success) {
+          Object.assign(gameState, {
+            turnRotation: updatedGameState.turnRotation,
+            currentMove: updatedGameState.currentMove,
+            playerStates: updatedGameState.playerStates,
+            nextPlacementRank: updatedGameState.nextPlacementRank,
+          });
+          await gameState.save();
+
+          await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
+        } else {
+          throw new GraphQLError(failCause, {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: cardsPlayed,
+            },
+          });
+        }
+      }
+
+      if (action === 'pass') {
+        gameState.currentMove.playersInPlay.shift();
+        const shiftPlayer = gameState.turnRotation.shift();
+        if (shiftPlayer) {
+          gameState.turnRotation.push(shiftPlayer);
+        }
+
+        if (gameState.currentMove.playersInPlay.length === 1) {
+          while (gameState.turnRotation[0] !== gameState.currentMove.player) {
+            const rotatePlayer = gameState.turnRotation.shift();
+
+            if (rotatePlayer) {
+              gameState.turnRotation.push(rotatePlayer);
+            }
+          }
+
+          gameState.currentMove.playersInPlay = gameState.turnRotation;
+          const [firstPlayer] = gameState.turnRotation;
+          Object.assign(gameState.currentMove, {
+            player: firstPlayer,
+            cards: [],
+            play: '',
+          });
+          await gameState.save();
+        }
+        await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
+      }
     },
-    // endGame: async (
-    //   _root: unknown,
-    //   args: { playerAction: PlayerAction },
-    //   context: { user: string },
-    // ) => {
-    //   // needs to receive the gamestate _id to delete it from the client
-    // }
   },
   Subscription: {
     gameStart: {
-      subscribe: (_root: unknown, _args: unknown, context: { user: string }) =>
-        pubsub.asyncIterator(`GAME_START_${context.user}`),
+      subscribe: (
+        _root: unknown,
+        _args: unknown,
+        context: { userId: string },
+      ) => pubsub.asyncIterator(`GAME_START_${context.userId}`),
     },
     playerMove: {
       subscribe: () => pubsub.asyncIterator('PLAYER_MOVE'),
