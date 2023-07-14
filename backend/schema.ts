@@ -1,16 +1,23 @@
 const typeDefs = `
   type Query {
-    allPlayers: [String]!
+    allPlayers: [String!]!
+    getLobby: Lobby!
   }
   type Mutation {
-    hostGame(gameInput: GameInput!): GameOutput!
-    joinGame(gameInput: GameInput!): GameOutput! 
+    hostGame(gameInput: GameInput!): Token!
+    joinGame(gameInput: GameInput!): Token! 
     startGame: Void
     playerMove(playerAction: PlayerAction!): Void
   }
   type Subscription {
     gameStart: GameStartState!
     playerMove: GameState!
+  }
+  type Lobby {
+    _id: String!
+    code: String!
+    host: String!
+    players: [String!]!
   }
   type User {
     name: String!
@@ -19,8 +26,7 @@ const typeDefs = `
     name: String!
     roomName: String!
   }
-  type GameOutput {
-    lobbyId: String!
+  type Token {
     token: String!
   }
   type Card {

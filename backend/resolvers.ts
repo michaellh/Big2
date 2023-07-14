@@ -18,6 +18,40 @@ const pubsub = new PubSub();
 const resolvers = {
   Query: {
     allPlayers: () => UserModel.find({}),
+    getLobby: async (
+      _root: unknown,
+      _args: unknown,
+      context: { userId: string },
+    ) => {
+      const { userId } = context;
+
+      try {
+        const lobby = await LobbyModel.findOne({
+          players: userId,
+        }).populate<{ code: string; host: IUser; players: IUser[] }>([
+          'host',
+          'players',
+        ]);
+
+        if (lobby) {
+          return {
+            _id: lobby._id,
+            code: lobby.code,
+            host: lobby.host.name,
+            players: lobby.players.map((player) => player.name),
+          };
+        }
+
+        throw new GraphQLError('You belong to no lobbies!', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: userId,
+          },
+        });
+      } catch (error) {
+        return error;
+      }
+    },
   },
   Mutation: {
     hostGame: async (_root: unknown, args: { gameInput: GameInput }) => {
@@ -44,14 +78,10 @@ const resolvers = {
           players: [hostUserId],
         });
         await lobby.save();
-        const lobbyId = lobby._id;
 
         const token = jwt.sign(hostUserId.toString(), config.JWT_SECRET);
 
-        return {
-          lobbyId,
-          token,
-        };
+        return { token };
       } catch (err) {
         throw new GraphQLError(`Attempt to host game failed: ${err}`);
       }
@@ -62,20 +92,25 @@ const resolvers = {
 
         const lobbyExists = await LobbyModel.findOne({ code: roomName });
         if (lobbyExists) {
+          if (lobbyExists.players.length >= 4) {
+            throw new GraphQLError('Lobby is full!', {
+              extensions: {
+                code: 'BAD_USER_INPUT',
+                invalidArgs: roomName,
+              },
+            });
+          }
+
           const newUser = new UserModel({ name });
           await newUser.save();
           const newUserId = newUser._id;
 
           lobbyExists.players.push(newUserId);
           await lobbyExists.save();
-          const lobbyId = lobbyExists._id;
 
           const token = jwt.sign(newUserId.toString(), config.JWT_SECRET);
 
-          return {
-            lobbyId,
-            token,
-          };
+          return { token };
         }
 
         throw new GraphQLError('Failed to find lobby!', {
@@ -205,6 +240,18 @@ const resolvers = {
         });
       }
 
+      if (user.name !== gameState.currentMove.playersInPlay[0]) {
+        throw new GraphQLError(
+          `${user.name}, it's ${gameState.currentMove.playersInPlay[0]}'s turn`,
+          {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: userId,
+            },
+          },
+        );
+      }
+
       if (action === 'play') {
         const { updatedGameState, success, failCause } =
           updateGameStateFromPlay(
@@ -259,6 +306,10 @@ const resolvers = {
           await gameState.save();
         }
         await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
+      }
+
+      if (gameState.turnRotation.length <= 1) {
+        await GameStateModel.findByIdAndRemove(gameState._id);
       }
     },
   },

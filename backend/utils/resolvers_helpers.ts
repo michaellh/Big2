@@ -114,7 +114,6 @@ export function updateCurrentMove(
       if (
         gameStateCopy.nextPlacementRank === gameStateCopy.playerStates.length
       ) {
-        // assign last rank to last player
         const lastRankPlayer = gameStateCopy.playerStates.find(
           (state) => state.placementRank === 0,
         );
@@ -157,14 +156,6 @@ export const updateGameStateFromPlay = (
   const { currentMove } = gameStateCopy;
   let success = false;
   let failCause = 'Your play is trash!';
-
-  if (user !== currentMove.playersInPlay[0]) {
-    return {
-      updatedGameState: gameStateCopy,
-      success,
-      failCause: `${user}, it's ${currentMove.playersInPlay[0]}'s turn`,
-    };
-  }
 
   if (currentMove.cards.length === 0) {
     let play;

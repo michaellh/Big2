@@ -1,6 +1,6 @@
 import { Schema, Types, model } from 'mongoose';
 
-export interface ILobby {
+interface ILobby {
   code: string;
   host: Types.ObjectId;
   players: Types.ObjectId[];

@@ -1,102 +1,42 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { gql, useMutation } from '@apollo/client';
-
-const HOST_GAME = gql`
-  mutation hostGame($gameInput: GameInput!) {
-    hostGame(gameInput: $gameInput) {
-      lobbyId
-      token
-    }
-  }
-`;
-const JOIN_GAME = gql`
-  mutation joinGame($gameInput: GameInput!) {
-    joinGame(gameInput: $gameInput) {
-      lobbyId
-      token
-    }
-  }
-`;
+import useHostGame from '../hooks/useHostGame';
+import useJoinGame from '../hooks/useJoinGame';
 
 const MainMenu = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [roomName, setRoomName] = useState('');
-  const navigate = useNavigate();
-  const [hostGame] = useMutation(HOST_GAME);
-  const [joinGame] = useMutation(JOIN_GAME);
+  const hostGame = useHostGame(name, roomName);
+  const joinGame = useJoinGame(name, roomName);
 
-  const handleHostGame = async (event: FormEvent): Promise<void> => {
-    event.preventDefault();
-    localStorage.removeItem('user-token');
+  const handleGameOption = useCallback(
+    async (event: FormEvent, option: string) => {
+      event.preventDefault();
+      localStorage.removeItem('user-token');
 
-    const response = await hostGame({
-      variables: {
-        gameInput: {
-          name,
-          roomName,
-        },
-      },
-    });
+      const { data, error } = await (option === 'host'
+        ? hostGame()
+        : joinGame());
 
-    const { data } = response as {
-      data: {
-        hostGame: {
-          token: string;
-          lobbyId: string;
-        };
-      };
-    };
-
-    if (data) {
-      localStorage.setItem('user-token', data.hostGame.token);
-      navigate(`/lobby/${data.hostGame.lobbyId}`, {
-        state: {
-          name,
-        },
-      });
-    }
-  };
-
-  const handleJoinGame = async (event: FormEvent) => {
-    event.preventDefault();
-    localStorage.removeItem('user-token');
-
-    const response = await joinGame({
-      variables: {
-        gameInput: {
-          name,
-          roomName,
-        },
-      },
-    });
-
-    const { data } = response as {
-      data: {
-        joinGame: {
-          token: string;
-          lobbyId: string;
-        };
-      };
-    };
-
-    if (data) {
-      localStorage.setItem('user-token', data.joinGame.token);
-      navigate(`/lobby/${data.joinGame.lobbyId}`, {
-        state: {
-          name,
-        },
-      });
-    }
-  };
+      if (error || !data) {
+        alert(error);
+      } else {
+        localStorage.setItem('user-token', data.token);
+        navigate('/lobby', {
+          state: {
+            name,
+            playerType: option,
+          },
+        });
+      }
+    },
+    [hostGame, joinGame, name, navigate],
+  );
 
   return (
     <div>
-      <header className='App-header'>
-        <p>Big 2</p>
-      </header>
       <h1>Lobby</h1>
-      <h3>Host Game</h3>
       <div>
         Name
         <input
@@ -115,13 +55,13 @@ const MainMenu = () => {
       </div>
       <button
         type='button'
-        onClick={handleHostGame}
+        onClick={(event) => handleGameOption(event, 'host')}
       >
         Host Game
       </button>
       <button
         type='button'
-        onClick={handleJoinGame}
+        onClick={(event) => handleGameOption(event, 'join')}
       >
         Join Game
       </button>

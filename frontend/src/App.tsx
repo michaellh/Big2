@@ -11,7 +11,7 @@ const App = () => (
         element={<MainMenu />}
       />
       <Route
-        path='/lobby/:id'
+        path='/lobby'
         element={<Lobby />}
       />
       <Route

@@ -1,120 +1,79 @@
-/* eslint-disable no-console */
-import { useLocation, useNavigate } from 'react-router-dom';
-import { gql, useMutation, useSubscription } from '@apollo/client';
+import { useLocation } from 'react-router-dom';
+import { gql, useQuery } from '@apollo/client';
+import useStartGame from '../hooks/useStartGame';
+import useGameStartSubscription from '../hooks/useGameStartSubscription';
 
-interface Card {
-  id: number;
-  value: number;
-  suit: number;
-}
-interface CurrentMove {
-  cards: [Card];
-  play: string;
-  player: string;
-  playersInPlay: [string];
-}
-interface PlayerState {
-  player: string;
-  cardCount: number;
-  placementRank: number;
-}
-interface GameState {
-  turnRotation: [string];
-  currentMove: CurrentMove;
-  playerStates: [PlayerState];
-  nextPlacementRank: number;
-}
-interface SubscriptionData {
-  gameStart: {
-    cards: Card[];
-    gameState: GameState;
+interface ILobby {
+  getLobby: {
+    _id: string;
+    code: string;
+    host: string;
+    players: string[];
   };
 }
 
-const GAME_START_SUBSCRIPTION = gql`
-  subscription OnStartGame {
-    gameStart {
-      cards {
-        id
-        value
-        suit
-      }
-      gameState {
-        turnRotation
-        currentMove {
-          cards {
-            id
-            value
-            suit
-          }
-          play
-          player
-          playersInPlay
-        }
-        playerStates {
-          player
-          cardCount
-          placementRank
-        }
-        nextPlacementRank
-      }
+const GET_LOBBY = gql`
+  query getLobby {
+    getLobby {
+      _id
+      code
+      host
+      players
     }
   }
 `;
-const START_GAME = gql`
-  mutation startGame {
-    startGame
-  }
-`;
 
-// pass prop to specify if user is the host or not
-// if yes then show start game otherwise show waiting to start game or something
 const Lobby = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const state = location.state as { name: string } | undefined;
-  const [startGame] = useMutation(START_GAME);
-  console.log('Lobby token', localStorage.getItem('user-token'));
-  console.log('subscribed to game start');
-  useSubscription<SubscriptionData>(GAME_START_SUBSCRIPTION, {
-    onData: ({ data }) => {
-      console.log('sub data', data);
-      const subData = data.data?.gameStart;
-      if (subData) {
-        const { cards, gameState } = subData;
-        navigate('/game', {
-          state: {
-            name: state?.name,
-            cards,
-            gameState,
-          },
-        });
-      }
-    },
+  const state = location.state as
+    | { name: string; playerType: string }
+    | undefined;
+  const startGame = useStartGame();
+  const {
+    loading,
+    error: lobbyError,
+    data,
+  } = useQuery<ILobby>(GET_LOBBY, {
+    fetchPolicy: 'cache-and-network',
   });
-  console.log('subscribed');
+
+  useGameStartSubscription(state?.name, state?.playerType);
 
   const handleStartGame = async () => {
-    console.log('start game clicked');
-    // starting a game returns the gamestate and cards
-    // gamestate should be returned with its id
-    // navigate(`/game:${event.target.value}`);
-    await startGame();
+    const { error } = await startGame();
+
+    if (error) {
+      alert(error);
+    }
   };
+
+  if (loading) return <p>Loading...</p>;
+  if (lobbyError) {
+    alert(lobbyError.message);
+  }
 
   return (
     <div>
       <header className='App-header'>
         <p>Big 2</p>
       </header>
+      <p>{`Room code: ${data?.getLobby.code}`}</p>
+      <p>{`Room host: ${data?.getLobby.host}`}</p>
       <p>{`Hello ${state?.name}`}</p>
-      <button
-        type='button'
-        onClick={handleStartGame}
-      >
-        Start Game
-      </button>
-      {/* <p>{!loading && data.gameStart}</p> */}
+      <p>Player rotation:</p>
+      {data?.getLobby.players.map((player) => (
+        <div>{player}</div>
+      ))}
+      {state?.playerType === 'host' ? (
+        <button
+          type='button'
+          onClick={handleStartGame}
+        >
+          Start Game
+        </button>
+      ) : (
+        <p>Please wait for the host to start the game...</p>
+      )}
     </div>
   );
 };
