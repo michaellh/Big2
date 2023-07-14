@@ -17,6 +17,7 @@ import {
 import config from './utils/config';
 import typeDefs from './schema';
 import resolvers from './resolvers';
+import scheduler, { cleanUpJob } from './utils/cleanup-scheduler';
 
 const start = async () => {
   mongoose.set('strictQuery', false);
@@ -105,6 +106,8 @@ const start = async () => {
       },
     }),
   );
+
+  scheduler.addSimpleIntervalJob(cleanUpJob);
 
   httpServer.listen(config.PORT, () =>
     console.log(`Server is now running on http://localhost:${config.PORT}`),

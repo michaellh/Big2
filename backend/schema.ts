@@ -21,6 +21,7 @@ const typeDefs = `
   }
   type User {
     name: String!
+    last_active: Date
   }
   input GameInput {
     name: String!

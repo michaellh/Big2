@@ -13,6 +13,7 @@ import {
 } from './utils/resolvers_helpers';
 import config from './utils/config';
 
+// implement the mongoose pubsub implementation
 const pubsub = new PubSub();
 
 const resolvers = {
@@ -68,7 +69,8 @@ const resolvers = {
           });
         }
 
-        const hostUser = new UserModel({ name });
+        const hostUser = new UserModel({ name, last_active: new Date() });
+        console.log('hostUser', hostUser);
         await hostUser.save();
         const hostUserId = hostUser._id;
 
@@ -123,6 +125,32 @@ const resolvers = {
         throw new GraphQLError(`Attempt to join game failed: ${err}`);
       }
     },
+    // changePlayerOrder: async (_root: unknown, args: { newOrder: string[] }, context: { userId: string }) => {
+    //   try {
+    //     const { newOrder } = args;
+    //     const { userId } = context;
+
+    //     const lobbyExists = await LobbyModel.findOne({
+    //       host: new Types.ObjectId(userId),
+    //     }).populate<{ players: IUser[] }>('players');
+    //     if (!lobbyExists) {
+    //       throw new GraphQLError('User is not the host of a lobby!', {
+    //         extensions: {
+    //           code: 'BAD_USER_INPUT',
+    //           invalidArgs: userId,
+    //         },
+    //       });
+    //     }
+
+    //     const updatedOrder: IUser[] = [];
+    //     for (let i = 0; i < lobbyExists.players.length; i += 1) {
+
+    //     }
+    //     lobbyExists.players.forEach(player => );
+    //   } catch (err) {
+    //     throw new GraphQLError(`Attempt to change player order failed: ${err}`);
+    //   }
+    // },
     startGame: async (
       _root: unknown,
       _args: unknown,
@@ -133,7 +161,7 @@ const resolvers = {
 
         const lobbyExists = await LobbyModel.findOne({
           host: new Types.ObjectId(userId),
-        }).populate<{ players: IUser[] }>('players');
+        }).populate<{ host: IUser; players: IUser[] }>('players');
         if (!lobbyExists) {
           throw new GraphQLError('User is not the host of a lobby!', {
             extensions: {
@@ -143,7 +171,7 @@ const resolvers = {
           });
         }
 
-        const { players } = lobbyExists;
+        const { host, players } = lobbyExists;
         if (players.length < 2 || players.length > 4) {
           throw new GraphQLError('Minimum 2 players and maximum 4 players!', {
             extensions: {
@@ -185,7 +213,7 @@ const resolvers = {
           },
           playerStates: players.map((player) => ({
             player: player.name,
-            cardCount: 13,
+            cardCount: 2,
             placementRank: 0,
           })),
           nextPlacementRank: 1,
@@ -194,6 +222,10 @@ const resolvers = {
         const gameStateId = gameState._id;
         lobbyExists.gameState = gameStateId;
         await lobbyExists.save();
+
+        await UserModel.findByIdAndUpdate(host._id, {
+          last_active: new Date(),
+        });
 
         await Promise.all(
           players.map(async (player, index) => {

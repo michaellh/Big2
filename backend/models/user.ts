@@ -3,6 +3,7 @@ import { Schema, Types, model } from 'mongoose';
 export interface IUser {
   _id: Types.ObjectId;
   name: string;
+  last_active: Date;
 }
 
 const schema = new Schema<IUser>(
@@ -11,6 +12,7 @@ const schema = new Schema<IUser>(
       type: String,
       required: true,
     },
+    last_active: Date,
   },
   { collection: 'user' },
 );

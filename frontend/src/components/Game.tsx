@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useState, MouseEventHandler } from 'react';
 import { Card, GameState, PlayerState } from '../schema';
 import usePlayerMove from '../hooks/usePlayerMove';
 import usePlayerMoveSubscription from '../hooks/usePlayerMoveSubscription';
+import GameOver from './GameOver';
 
 const Game = () => {
   const [playCards, setPlayCards] = useState<Card[]>([]);
@@ -25,7 +26,6 @@ const Game = () => {
     ],
     nextPlacementRank: 0,
   });
-  const navigate = useNavigate();
   const location = useLocation();
   const playerPlayMove = usePlayerMove(playCards, 'play');
   const playerPassMove = usePlayerMove(playCards, 'pass');
@@ -35,12 +35,7 @@ const Game = () => {
   const state = location.state as
     | { name: string; playerType: string; cards: Card[]; gameState: GameState }
     | undefined;
-  if (
-    state &&
-    state.cards &&
-    handCards.length === 0 &&
-    gameState.nextPlacementRank === 0
-  ) {
+  if (state && handCards.length === 0 && gameState.nextPlacementRank === 0) {
     const { cards, gameState: startGameState } = state;
 
     setHandCards(cards);
@@ -104,42 +99,18 @@ const Game = () => {
     }
   };
 
-  const handleReturnToLobby: MouseEventHandler<HTMLButtonElement> = (event) => {
-    event.preventDefault();
-
-    // call mutation to delete game state/end game
-    navigate('/lobby', {
-      state: {
-        name: state?.name,
-        playerType: state?.playerType,
-      },
-    });
-  };
-
-  if (gameState.nextPlacementRank === gameState.playerStates.length) {
+  if (gameState.turnRotation.length === 1) {
     return (
-      <div>
-        <div>Game Over!</div>
-        {gameState.playerStates.map((playerState: PlayerState) => (
-          <div key={playerState.player}>
-            {`${playerState.player} Finish: ${playerState.placementRank}`}
-          </div>
-        ))}
-        <button
-          type='button'
-          onClick={handleReturnToLobby}
-        >
-          Return to Lobby
-        </button>
-      </div>
+      <GameOver
+        name={state?.name}
+        playerType={state?.playerType}
+        playerStates={gameState.playerStates}
+      />
     );
   }
 
   return (
     <div>
-      <header className='App-header'>
-        <p>Big 2</p>
-      </header>
       <p>{`You are ${state?.name}`}</p>
       <h3>Table</h3>
       <div>{`Current Player's Turn: ${gameState.turnRotation.at(0)}`}</div>

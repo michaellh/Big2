@@ -54,9 +54,6 @@ const Lobby = () => {
 
   return (
     <div>
-      <header className='App-header'>
-        <p>Big 2</p>
-      </header>
       <p>{`Room code: ${data?.getLobby.code}`}</p>
       <p>{`Room host: ${data?.getLobby.host}`}</p>
       <p>{`Hello ${state?.name}`}</p>
