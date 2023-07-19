@@ -14,6 +14,7 @@ import {
   typeDefs as scalarTypeDefs,
   resolvers as scalarResolvers,
 } from 'graphql-scalars';
+import path from 'path';
 import config from './utils/config';
 import typeDefs from './schema';
 import resolvers from './resolvers';
@@ -29,6 +30,7 @@ const start = async () => {
   }
 
   const app = express();
+  const rootRouter = express.Router();
   const httpServer = http.createServer(app);
 
   const wsServer = new WebSocketServer({
@@ -83,29 +85,61 @@ const start = async () => {
 
   await server.start();
 
-  app.use(
-    '/',
-    cors(),
-    express.json(),
-    expressMiddleware(server, {
-      context: async ({ req }) => {
-        const auth = req ? req.headers.authorization : null;
-        if (auth && auth.startsWith('Bearer ')) {
-          const token = auth.substring(7);
+  if (process.env.NODE_ENV === 'production') {
+    const frontendBuildPath = path.join(__dirname, 'build');
 
-          try {
-            const userId = jwt.verify(token, config.JWT_SECRET);
+    app.use(
+      '/',
+      cors(),
+      express.json(),
+      express.static(frontendBuildPath),
+      rootRouter.get('*', (_req, res) => {
+        res.sendFile(path.join(frontendBuildPath, 'index.html'));
+      }),
+      expressMiddleware(server, {
+        context: async ({ req }) => {
+          const auth = req ? req.headers.authorization : null;
+          if (auth && auth.startsWith('Bearer ')) {
+            const token = auth.substring(7);
 
-            return { userId };
-          } catch (error) {
-            console.error('Token verification failed:', error);
+            try {
+              const userId = jwt.verify(token, config.JWT_SECRET);
+
+              return { userId };
+            } catch (error) {
+              console.error('Token verification failed:', error);
+            }
           }
-        }
 
-        return {};
-      },
-    }),
-  );
+          return {};
+        },
+      }),
+    );
+  } else {
+    app.use(
+      '/',
+      cors(),
+      express.json(),
+      expressMiddleware(server, {
+        context: async ({ req }) => {
+          const auth = req ? req.headers.authorization : null;
+          if (auth && auth.startsWith('Bearer ')) {
+            const token = auth.substring(7);
+
+            try {
+              const userId = jwt.verify(token, config.JWT_SECRET);
+
+              return { userId };
+            } catch (error) {
+              console.error('Token verification failed:', error);
+            }
+          }
+
+          return {};
+        },
+      }),
+    );
+  }
 
   scheduler.addSimpleIntervalJob(cleanUpJob);
 

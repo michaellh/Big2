@@ -9,7 +9,7 @@ export const selectRandomCards = (
   deckOfCards: Card[],
   players: number,
 ): Card[][] => {
-  const handSize = 2;
+  const handSize = 13;
   const shuffledCards = [...deckOfCards].sort(() => Math.random() - 0.5);
   const playerCards: Card[][] = [];
 

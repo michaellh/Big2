@@ -70,7 +70,6 @@ const resolvers = {
         }
 
         const hostUser = new UserModel({ name, last_active: new Date() });
-        console.log('hostUser', hostUser);
         await hostUser.save();
         const hostUserId = hostUser._id;
 
@@ -213,7 +212,7 @@ const resolvers = {
           },
           playerStates: players.map((player) => ({
             player: player.name,
-            cardCount: 2,
+            cardCount: 13,
             placementRank: 0,
           })),
           nextPlacementRank: 1,

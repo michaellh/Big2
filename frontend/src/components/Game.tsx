@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
 import { useLocation } from 'react-router-dom';
 import { useState, MouseEventHandler } from 'react';
-import { Card, GameState, PlayerState } from '../schema';
+import { Card, GameState } from '../schema';
 import usePlayerMove from '../hooks/usePlayerMove';
 import usePlayerMoveSubscription from '../hooks/usePlayerMoveSubscription';
+import Table from './Table';
 import GameOver from './GameOver';
 
 const Game = () => {
@@ -112,22 +113,7 @@ const Game = () => {
   return (
     <div>
       <p>{`You are ${state?.name}`}</p>
-      <h3>Table</h3>
-      <div>{`Current Player's Turn: ${gameState.turnRotation.at(0)}`}</div>
-      {gameState.playerStates.map((playerState: PlayerState) => (
-        <div key={playerState.player}>
-          {`${playerState.player} # of Cards: ${playerState.cardCount} Finish: ${playerState.placementRank}`}
-        </div>
-      ))}
-      <h3>Played Cards</h3>
-      {gameState.currentMove.cards.map(
-        (card: { id: number; value: number; suit: number }) => (
-          <div key={card.id}>
-            {card.value} {card.suit}
-          </div>
-        ),
-      )}
-      <p>{`Played by ${gameState.currentMove.player}`}</p>
+      <Table gameState={gameState} />
       <h3>Your Cards</h3>
       {playCards.map((card: { id: number; value: number; suit: number }) => (
         <div key={card.id}>
