@@ -18,7 +18,7 @@ COPY backend /app
 COPY --from=frontend-build /app/frontend/build /app/build
 
 # Expose ports
-EXPOSE 3001
+EXPOSE 80
 
 # Start the backend server
 CMD ["npm", "start"]

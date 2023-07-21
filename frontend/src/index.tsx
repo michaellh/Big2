@@ -24,11 +24,13 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-const httpLink = createHttpLink({ uri: 'http://localhost:3001' });
+const { hostname } = window.location;
+const backendPort = process.env.NODE_ENV === 'production' ? 80 : 3001;
+const httpLink = createHttpLink({ uri: `http://${hostname}:${backendPort}` });
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: 'ws://localhost:3001',
+    url: `ws://${hostname}:${backendPort}`,
     connectionParams() {
       return {
         Authorization: localStorage.getItem('user-token')
