@@ -4,7 +4,7 @@ import { GraphQLError } from 'graphql';
 import { Types } from 'mongoose';
 import UserModel, { IUser } from './models/user';
 import LobbyModel from './models/lobby';
-import GameStateModel from './models/gameState';
+import GameStateModel, { IPlayerState } from './models/gameState';
 import deckOfCards from './utils/test_data';
 import { GameInput, PlayerAction } from './schema';
 import {
@@ -13,7 +13,6 @@ import {
 } from './utils/resolvers_helpers';
 import config from './utils/config';
 
-// implement the mongoose pubsub implementation
 const pubsub = new PubSub();
 
 const resolvers = {
@@ -203,6 +202,14 @@ const resolvers = {
 
         const gameState = new GameStateModel({});
         gameState.turnRotation = players.map((player) => player.name);
+        const playerStates: IPlayerState[] = [];
+        players.map(async (player, index) => {
+          playerStates.push({
+            player: player.name,
+            cards: distributedCards[index],
+            placementRank: 0,
+          });
+        });
         Object.assign(gameState, {
           currentMove: {
             cards: [],
@@ -210,11 +217,7 @@ const resolvers = {
             player: gameState.turnRotation[0],
             playersInPlay: gameState.turnRotation,
           },
-          playerStates: players.map((player) => ({
-            player: player.name,
-            cardCount: 13,
-            placementRank: 0,
-          })),
+          playerStates,
           nextPlacementRank: 1,
         });
         await gameState.save();
@@ -334,8 +337,8 @@ const resolvers = {
             cards: [],
             play: '',
           });
-          await gameState.save();
         }
+        await gameState.save();
         await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
       }
 

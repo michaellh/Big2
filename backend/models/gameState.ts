@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
 
 interface ICard {
   id: number;
@@ -13,13 +13,14 @@ interface ICurrentMove {
   playersInPlay: string[];
 }
 
-interface IPlayerState {
+export interface IPlayerState {
   player: string;
-  cardCount: number;
+  cards: ICard[];
   placementRank: number;
 }
 
-interface IGameState {
+export interface IGameState {
+  _id: Types.ObjectId;
   turnRotation: string[];
   currentMove: ICurrentMove;
   playerStates: IPlayerState[];
@@ -44,7 +45,13 @@ const schema = new Schema<IGameState>(
     playerStates: [
       {
         player: String,
-        cardCount: Number,
+        cards: [
+          {
+            id: Number,
+            value: Number,
+            suit: Number,
+          },
+        ],
         placementRank: Number,
       },
     ],

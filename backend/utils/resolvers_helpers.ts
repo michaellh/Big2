@@ -84,12 +84,12 @@ export const isChop = (cards: Card[], chops = 3): boolean => {
   return false;
 };
 
-export function updateCurrentMove(
+export const updateCurrentMove = (
   user: string,
   gameState: GameState,
   play: string,
   playerAction: PlayerAction,
-): GameState {
+): GameState => {
   const gameStateCopy: GameState = JSON.parse(
     JSON.stringify(gameState),
   ) as GameState;
@@ -101,9 +101,14 @@ export function updateCurrentMove(
   );
 
   if (playerState) {
-    playerState.cardCount -= playerAction.cardsPlayed.length;
+    playerState.cards = playerState.cards.filter(
+      (card) =>
+        !playerAction.cardsPlayed.some(
+          (playedCard) => playedCard.id === card.id,
+        ),
+    );
 
-    if (playerState.cardCount === 0) {
+    if (playerState.cards.length === 0) {
       gameStateCopy.turnRotation.shift();
       gameStateCopy.currentMove.playersInPlay.shift();
       const [topPlayer] = gameStateCopy.currentMove.playersInPlay;
@@ -135,14 +140,24 @@ export function updateCurrentMove(
   }
 
   return gameStateCopy;
-}
+};
 
-export function isCardHigher(cardA: Card, cardB: Card): boolean {
+export const isCardHigher = (cardA: Card, cardB: Card): boolean => {
   if (cardA.value !== cardB.value) {
     return cardA.value > cardB.value;
   }
   return cardA.suit > cardB.suit;
-}
+};
+
+export const getPlayType = (cards: Card[]): string | undefined => {
+  if (isSingle(cards)) return 'single';
+  if (isPair(cards)) return 'pair';
+  if (isTriple(cards)) return 'triple';
+  if (isBomb(cards)) return 'bomb';
+  if (isStraight(cards)) return 'straight';
+  if (isChop(cards)) return 'chop';
+  return undefined;
+};
 
 export const updateGameStateFromPlay = (
   user: string,
@@ -153,28 +168,38 @@ export const updateGameStateFromPlay = (
   let gameStateCopy: GameState = JSON.parse(
     JSON.stringify(gameState),
   ) as GameState;
-  const { currentMove } = gameStateCopy;
+  const { currentMove, playerStates } = gameStateCopy;
+  const userPlayerState = playerStates.find(
+    (playerState) => playerState.player === user,
+  );
   let success = false;
   let failCause = 'Your play is trash!';
 
-  if (currentMove.cards.length === 0) {
-    let play;
+  if (
+    userPlayerState &&
+    gameState.playerStates.every(
+      (playerState) => playerState.cards.length === 13,
+    )
+  ) {
+    if (playerAction.cardsPlayed[0].id === userPlayerState.cards[0].id) {
+      const play = getPlayType(cards);
 
-    if (isSingle(cards)) {
-      play = 'single';
-    } else if (isPair(cards)) {
-      play = 'pair';
-    } else if (isTriple(cards)) {
-      play = 'triple';
-    } else if (isBomb(cards)) {
-      play = 'bomb';
-    } else if (isStraight(cards)) {
-      play = 'straight';
-    } else if (isChop(cards)) {
-      play = 'chop';
+      if (play) {
+        gameStateCopy = updateCurrentMove(
+          user,
+          gameStateCopy,
+          play,
+          playerAction,
+        );
+        success = true;
+      } else {
+        failCause = 'Not a valid play';
+      }
     } else {
-      play = undefined;
+      failCause = 'Need to include your lowest card';
     }
+  } else if (currentMove.cards.length === 0 && userPlayerState) {
+    const play = getPlayType(cards);
 
     if (play) {
       gameStateCopy = updateCurrentMove(

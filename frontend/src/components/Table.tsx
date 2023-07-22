@@ -9,7 +9,7 @@ const Table = ({ gameState }: { gameState: GameState }) => {
       <div>{`Current Player's Turn: ${turnRotation.at(0)}`}</div>
       {playerStates.map((playerState: PlayerState) => (
         <div key={playerState.player}>
-          {`${playerState.player} # of Cards: ${playerState.cardCount} Finish: ${playerState.placementRank}`}
+          {`${playerState.player} # of Cards: ${playerState.cards.length}`}
         </div>
       ))}
       <h3>Played Cards</h3>

@@ -26,7 +26,11 @@ const PLAYER_MOVE_SUBSCRIPTION = gql`
       }
       playerStates {
         player
-        cardCount
+        cards {
+          id
+          value
+          suit
+        }
         placementRank
       }
       nextPlacementRank

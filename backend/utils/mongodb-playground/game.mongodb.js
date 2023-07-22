@@ -27,7 +27,7 @@ const { insertedId: gameStateInsertId } = db.getCollection('gameState').insertOn
   'playerStates': [
     {
       'player': "",
-      'cardCount': 0,
+      'cards': [],
     },
   ],
 });

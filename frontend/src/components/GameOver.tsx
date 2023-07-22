@@ -1,14 +1,14 @@
 import { MouseEventHandler } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlayerState } from '../schema';
+import { PlayerState, GameState } from '../schema';
 
 interface GameOverProps {
   name: string | undefined;
   playerType: string | undefined;
-  playerStates: PlayerState[];
+  gameState: GameState;
 }
 
-const GameOver = ({ name, playerType, playerStates }: GameOverProps) => {
+const GameOver = ({ name, playerType, gameState }: GameOverProps) => {
   const navigate = useNavigate();
 
   const handleReturnToLobby: MouseEventHandler<HTMLButtonElement> = (event) => {
@@ -25,7 +25,15 @@ const GameOver = ({ name, playerType, playerStates }: GameOverProps) => {
   return (
     <div>
       <div>Game Over!</div>
-      {playerStates.map((playerState: PlayerState) => (
+      <div>Last Move: </div>
+      {gameState.currentMove.cards.map(
+        (card: { id: number; value: number; suit: number }) => (
+          <div key={card.id}>
+            {card.value} {card.suit}
+          </div>
+        ),
+      )}
+      {gameState.playerStates.map((playerState: PlayerState) => (
         <div key={playerState.player}>
           {`${playerState.player} Finish: ${playerState.placementRank}`}
         </div>

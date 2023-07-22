@@ -21,7 +21,7 @@ const Game = () => {
     playerStates: [
       {
         player: '',
-        cardCount: 0,
+        cards: [],
         placementRank: 0,
       },
     ],
@@ -105,7 +105,7 @@ const Game = () => {
       <GameOver
         name={state?.name}
         playerType={state?.playerType}
-        playerStates={gameState.playerStates}
+        gameState={gameState}
       />
     );
   }

@@ -1,6 +1,7 @@
 import { ToadScheduler, SimpleIntervalJob, AsyncTask } from 'toad-scheduler';
 import UserModel, { IUser } from '../models/user';
 import LobbyModel from '../models/lobby';
+import GameStateModel, { IGameState } from '../models/gameState';
 
 const scheduler = new ToadScheduler();
 
@@ -12,11 +13,12 @@ const task = new AsyncTask(
     const lobbies = await LobbyModel.find({}).populate<{
       host: IUser;
       players: IUser[];
-    }>(['host', 'players']);
+      gameState: IGameState;
+    }>(['host', 'players', 'gameState']);
 
     await Promise.all(
       lobbies.map(async (lobby) => {
-        const { host, players } = lobby;
+        const { host, players, gameState } = lobby;
 
         if (host.last_active <= sixtyMinutesAgo) {
           await Promise.all(
@@ -25,14 +27,14 @@ const task = new AsyncTask(
             }),
           );
 
+          await GameStateModel.findByIdAndDelete(gameState._id);
           await LobbyModel.findByIdAndDelete(lobby._id);
         }
       }),
     );
   },
   (err: Error) => {
-    /* handle error here */
-    console.log(err);
+    console.log('Failed to delete in cleanup-scheduler', err);
   },
 );
 

@@ -52,7 +52,7 @@ const typeDefs = `
   }
   type PlayerState {
     player: String!
-    cardCount: Int!
+    cards: [Card]
     placementRank: Int!
   }
   type GameState {
@@ -83,7 +83,7 @@ export interface GameState {
   };
   playerStates: {
     player: string;
-    cardCount: number;
+    cards: Card[];
     placementRank: number;
   }[];
   nextPlacementRank: number;

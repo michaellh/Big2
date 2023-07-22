@@ -33,7 +33,7 @@ export type CurrentMove = {
 
 export type PlayerState = {
   player: string;
-  cardCount: number;
+  cards: Card[];
   placementRank: number;
 };
 

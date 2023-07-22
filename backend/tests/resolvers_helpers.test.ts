@@ -386,12 +386,19 @@ describe('updateCurrentMove', () => {
       playerStates: [
         {
           player: testPlayer1,
-          cardCount: 2,
+          cards: [
+            { id: 0, value: 1, suit: 1 },
+            { id: 1, value: 1, suit: 2 },
+          ],
           placementRank: 0,
         },
         {
           player: testPlayer2,
-          cardCount: 3,
+          cards: [
+            { id: 2, value: 1, suit: 3 },
+            { id: 3, value: 1, suit: 4 },
+            { id: 4, value: 2, suit: 1 },
+          ],
           placementRank: 0,
         },
       ],
@@ -423,12 +430,16 @@ describe('updateCurrentMove', () => {
       playerStates: [
         {
           player: testPlayer1,
-          cardCount: 1,
+          cards: [{ id: 1, value: 1, suit: 2 }],
           placementRank: 0,
         },
         {
           player: testPlayer2,
-          cardCount: 3,
+          cards: [
+            { id: 2, value: 1, suit: 3 },
+            { id: 3, value: 1, suit: 4 },
+            { id: 4, value: 2, suit: 1 },
+          ],
           placementRank: 0,
         },
       ],
@@ -437,7 +448,7 @@ describe('updateCurrentMove', () => {
   });
 
   test('when a player runs out of cards with play', () => {
-    gameState.playerStates[0].cardCount = 1;
+    gameState.playerStates[0].cards = [{ id: 0, value: 1, suit: 1 }];
     const playerAction = {
       name: testPlayer1,
       action: 'play',
@@ -461,12 +472,16 @@ describe('updateCurrentMove', () => {
       playerStates: [
         {
           player: testPlayer1,
-          cardCount: 0,
+          cards: [],
           placementRank: 1,
         },
         {
           player: testPlayer2,
-          cardCount: 3,
+          cards: [
+            { id: 2, value: 1, suit: 3 },
+            { id: 3, value: 1, suit: 4 },
+            { id: 4, value: 2, suit: 1 },
+          ],
           placementRank: 2,
         },
       ],
@@ -492,12 +507,19 @@ describe('updateGameStateFromPlay', () => {
       playerStates: [
         {
           player: testPlayer1,
-          cardCount: 2,
+          cards: [
+            { id: 0, value: 1, suit: 1 },
+            { id: 1, value: 1, suit: 2 },
+          ],
           placementRank: 0,
         },
         {
           player: testPlayer2,
-          cardCount: 3,
+          cards: [
+            { id: 2, value: 1, suit: 3 },
+            { id: 3, value: 1, suit: 4 },
+            { id: 4, value: 2, suit: 1 },
+          ],
           placementRank: 0,
         },
       ],
@@ -529,12 +551,16 @@ describe('updateGameStateFromPlay', () => {
       playerStates: [
         {
           player: testPlayer1,
-          cardCount: 1,
+          cards: [{ id: 1, value: 1, suit: 2 }],
           placementRank: 0,
         },
         {
           player: testPlayer2,
-          cardCount: 3,
+          cards: [
+            { id: 2, value: 1, suit: 3 },
+            { id: 3, value: 1, suit: 4 },
+            { id: 4, value: 2, suit: 1 },
+          ],
           placementRank: 0,
         },
       ],
@@ -544,7 +570,7 @@ describe('updateGameStateFromPlay', () => {
 
   describe('single', () => {
     test("can't be beat by a lower single", () => {
-      gameState.currentMove.cards = [{ id: 0, value: 2, suit: 1 }];
+      gameState.currentMove.cards = [{ id: 4, value: 2, suit: 1 }];
       gameState.currentMove.play = 'single';
       gameState.currentMove.player = testPlayer1;
 
@@ -571,12 +597,19 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 3,
+            cards: [
+              { id: 2, value: 1, suit: 3 },
+              { id: 3, value: 1, suit: 4 },
+              { id: 4, value: 2, suit: 1 },
+            ],
             placementRank: 0,
           },
         ],
@@ -587,14 +620,14 @@ describe('updateGameStateFromPlay', () => {
     test('beat by a higher single', () => {
       gameState.turnRotation = [testPlayer2, testPlayer1];
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
-      gameState.currentMove.cards = [{ id: 0, value: 2, suit: 1 }];
+      gameState.currentMove.cards = [{ id: 0, value: 3, suit: 1 }];
       gameState.currentMove.play = 'single';
       gameState.currentMove.player = testPlayer1;
 
       const playerAction = {
         name: testPlayer2,
         action: 'play',
-        cardsPlayed: [{ id: 4, value: 2, suit: 2 }],
+        cardsPlayed: [{ id: 1, value: 3, suit: 2 }],
       };
       const result = updateGameStateFromPlay(
         testPlayer2,
@@ -614,12 +647,19 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 2,
+            cards: [
+              { id: 2, value: 1, suit: 3 },
+              { id: 3, value: 1, suit: 4 },
+              { id: 4, value: 2, suit: 1 },
+            ],
             placementRank: 0,
           },
         ],
@@ -633,7 +673,15 @@ describe('updateGameStateFromPlay', () => {
       gameState.currentMove.cards = [{ id: 0, value: 15, suit: 1 }];
       gameState.currentMove.play = 'single';
       gameState.currentMove.player = testPlayer1;
-      gameState.playerStates[1].cardCount = 7;
+      gameState.playerStates[1].cards = [
+        { id: 4, value: 2, suit: 2 },
+        { id: 5, value: 2, suit: 3 },
+        { id: 6, value: 3, suit: 2 },
+        { id: 7, value: 3, suit: 3 },
+        { id: 8, value: 4, suit: 2 },
+        { id: 9, value: 4, suit: 3 },
+        { id: 10, value: 4, suit: 4 },
+      ];
 
       const playerAction = {
         name: testPlayer2,
@@ -665,12 +713,15 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 1,
+            cards: [{ id: 10, value: 4, suit: 4 }],
             placementRank: 0,
           },
         ],
@@ -684,7 +735,15 @@ describe('updateGameStateFromPlay', () => {
       gameState.currentMove.cards = [{ id: 0, value: 15, suit: 1 }];
       gameState.currentMove.play = 'single';
       gameState.currentMove.player = testPlayer1;
-      gameState.playerStates[1].cardCount = 7;
+      gameState.playerStates[1].cards = [
+        { id: 1, value: 2, suit: 2 },
+        { id: 2, value: 2, suit: 3 },
+        { id: 3, value: 3, suit: 2 },
+        { id: 4, value: 4, suit: 1 },
+        { id: 5, value: 4, suit: 2 },
+        { id: 6, value: 4, suit: 3 },
+        { id: 7, value: 4, suit: 4 },
+      ];
 
       const playerAction = {
         name: testPlayer2,
@@ -714,12 +773,19 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 3,
+            cards: [
+              { id: 1, value: 2, suit: 2 },
+              { id: 2, value: 2, suit: 3 },
+              { id: 3, value: 3, suit: 2 },
+            ],
             placementRank: 0,
           },
         ],
@@ -763,12 +829,19 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 3,
+            cards: [
+              { id: 2, value: 1, suit: 3 },
+              { id: 3, value: 1, suit: 4 },
+              { id: 4, value: 2, suit: 1 },
+            ],
             placementRank: 0,
           },
         ],
@@ -812,12 +885,18 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 1,
+            cards: [
+              { id: 2, value: 1, suit: 3 },
+              { id: 3, value: 1, suit: 4 },
+            ],
             placementRank: 0,
           },
         ],
@@ -834,7 +913,18 @@ describe('updateGameStateFromPlay', () => {
       ];
       gameState.currentMove.play = 'pair';
       gameState.currentMove.player = testPlayer1;
-      gameState.playerStates[1].cardCount = 10;
+      gameState.playerStates[1].cards = [
+        { id: 2, value: 2, suit: 1 },
+        { id: 3, value: 2, suit: 2 },
+        { id: 4, value: 2, suit: 2 },
+        { id: 5, value: 2, suit: 3 },
+        { id: 6, value: 3, suit: 2 },
+        { id: 7, value: 3, suit: 3 },
+        { id: 8, value: 4, suit: 2 },
+        { id: 9, value: 4, suit: 3 },
+        { id: 10, value: 5, suit: 2 },
+        { id: 11, value: 5, suit: 3 },
+      ];
 
       const playerAction = {
         name: testPlayer2,
@@ -868,12 +958,18 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 2,
+            cards: [
+              { id: 2, value: 2, suit: 1 },
+              { id: 3, value: 2, suit: 2 },
+            ],
             placementRank: 0,
           },
         ],
@@ -919,12 +1015,19 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 3,
+            cards: [
+              { id: 2, value: 1, suit: 3 },
+              { id: 3, value: 1, suit: 4 },
+              { id: 4, value: 2, suit: 1 },
+            ],
             placementRank: 0,
           },
         ],
@@ -942,7 +1045,13 @@ describe('updateGameStateFromPlay', () => {
       ];
       gameState.currentMove.play = 'triple';
       gameState.currentMove.player = testPlayer1;
-      gameState.playerStates[1].cardCount = 5;
+      gameState.playerStates[1].cards = [
+        { id: 3, value: 7, suit: 2 },
+        { id: 4, value: 7, suit: 3 },
+        { id: 5, value: 7, suit: 4 },
+        { id: 6, value: 8, suit: 1 },
+        { id: 7, value: 8, suit: 2 },
+      ];
 
       const playerAction = {
         name: testPlayer2,
@@ -971,12 +1080,18 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 2,
+            cards: [
+              { id: 6, value: 8, suit: 1 },
+              { id: 7, value: 8, suit: 2 },
+            ],
             placementRank: 0,
           },
         ],
@@ -994,7 +1109,19 @@ describe('updateGameStateFromPlay', () => {
       ];
       gameState.currentMove.play = 'triple';
       gameState.currentMove.player = testPlayer1;
-      gameState.playerStates[1].cardCount = 11;
+      gameState.playerStates[1].cards = [
+        { id: 4, value: 2, suit: 2 },
+        { id: 5, value: 2, suit: 3 },
+        { id: 6, value: 3, suit: 2 },
+        { id: 7, value: 3, suit: 3 },
+        { id: 8, value: 4, suit: 2 },
+        { id: 9, value: 4, suit: 3 },
+        { id: 10, value: 5, suit: 2 },
+        { id: 11, value: 5, suit: 3 },
+        { id: 12, value: 6, suit: 2 },
+        { id: 13, value: 6, suit: 3 },
+        { id: 14, value: 6, suit: 4 },
+      ];
 
       const playerAction = {
         name: testPlayer2,
@@ -1030,12 +1157,15 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 1,
+            cards: [{ id: 14, value: 6, suit: 4 }],
             placementRank: 0,
           },
         ],
@@ -1083,12 +1213,19 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 3,
+            cards: [
+              { id: 2, value: 1, suit: 3 },
+              { id: 3, value: 1, suit: 4 },
+              { id: 4, value: 2, suit: 1 },
+            ],
             placementRank: 0,
           },
         ],
@@ -1107,7 +1244,13 @@ describe('updateGameStateFromPlay', () => {
       ];
       gameState.currentMove.play = 'bomb';
       gameState.currentMove.player = testPlayer1;
-      gameState.playerStates[1].cardCount = 10;
+      gameState.playerStates[1].cards = [
+        { id: 2, value: 7, suit: 1 },
+        { id: 3, value: 7, suit: 2 },
+        { id: 4, value: 7, suit: 3 },
+        { id: 5, value: 7, suit: 4 },
+        { id: 6, value: 8, suit: 4 },
+      ];
 
       const playerAction = {
         name: testPlayer2,
@@ -1137,12 +1280,15 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 6,
+            cards: [{ id: 6, value: 8, suit: 4 }],
             placementRank: 0,
           },
         ],
@@ -1189,12 +1335,19 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 3,
+            cards: [
+              { id: 2, value: 1, suit: 3 },
+              { id: 3, value: 1, suit: 4 },
+              { id: 4, value: 2, suit: 1 },
+            ],
             placementRank: 0,
           },
         ],
@@ -1238,12 +1391,19 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 3,
+            cards: [
+              { id: 2, value: 1, suit: 3 },
+              { id: 3, value: 1, suit: 4 },
+              { id: 4, value: 2, suit: 1 },
+            ],
             placementRank: 0,
           },
         ],
@@ -1262,7 +1422,13 @@ describe('updateGameStateFromPlay', () => {
       ];
       gameState.currentMove.play = 'straight';
       gameState.currentMove.player = testPlayer1;
-      gameState.playerStates[1].cardCount = 10;
+      gameState.playerStates[1].cards = [
+        { id: 2, value: 5, suit: 1 },
+        { id: 3, value: 6, suit: 2 },
+        { id: 4, value: 7, suit: 3 },
+        { id: 5, value: 8, suit: 4 },
+        { id: 6, value: 9, suit: 1 },
+      ];
 
       const playerAction = {
         name: testPlayer2,
@@ -1292,12 +1458,15 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 6,
+            cards: [{ id: 6, value: 9, suit: 1 }],
             placementRank: 0,
           },
         ],
@@ -1351,12 +1520,19 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 3,
+            cards: [
+              { id: 2, value: 1, suit: 3 },
+              { id: 3, value: 1, suit: 4 },
+              { id: 4, value: 2, suit: 1 },
+            ],
             placementRank: 0,
           },
         ],
@@ -1406,12 +1582,19 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 3,
+            cards: [
+              { id: 2, value: 1, suit: 3 },
+              { id: 3, value: 1, suit: 4 },
+              { id: 4, value: 2, suit: 1 },
+            ],
             placementRank: 0,
           },
         ],
@@ -1424,34 +1607,46 @@ describe('updateGameStateFromPlay', () => {
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
       gameState.currentMove.cards = [
         { id: 0, value: 2, suit: 1 },
-        { id: 0, value: 2, suit: 2 },
-        { id: 0, value: 3, suit: 3 },
-        { id: 0, value: 3, suit: 4 },
-        { id: 0, value: 4, suit: 1 },
-        { id: 0, value: 4, suit: 2 },
-        { id: 0, value: 5, suit: 3 },
-        { id: 0, value: 5, suit: 4 },
-        { id: 0, value: 6, suit: 3 },
-        { id: 0, value: 6, suit: 4 },
+        { id: 1, value: 2, suit: 2 },
+        { id: 2, value: 3, suit: 3 },
+        { id: 3, value: 3, suit: 4 },
+        { id: 4, value: 4, suit: 1 },
+        { id: 5, value: 4, suit: 2 },
+        { id: 6, value: 5, suit: 3 },
+        { id: 7, value: 5, suit: 4 },
+        { id: 8, value: 6, suit: 3 },
+        { id: 9, value: 6, suit: 4 },
       ];
       gameState.currentMove.play = 'chop';
       gameState.currentMove.player = testPlayer1;
-      gameState.playerStates[1].cardCount = 13;
+      gameState.playerStates[1].cards = [
+        { id: 10, value: 7, suit: 1 },
+        { id: 11, value: 7, suit: 2 },
+        { id: 12, value: 8, suit: 3 },
+        { id: 13, value: 8, suit: 4 },
+        { id: 14, value: 9, suit: 1 },
+        { id: 15, value: 9, suit: 2 },
+        { id: 16, value: 10, suit: 3 },
+        { id: 17, value: 10, suit: 4 },
+        { id: 18, value: 11, suit: 3 },
+        { id: 19, value: 11, suit: 4 },
+        { id: 20, value: 12, suit: 1 },
+      ];
 
       const playerAction = {
         name: testPlayer2,
         action: 'play',
         cardsPlayed: [
-          { id: 0, value: 7, suit: 1 },
-          { id: 0, value: 7, suit: 2 },
-          { id: 0, value: 8, suit: 3 },
-          { id: 0, value: 8, suit: 4 },
-          { id: 0, value: 9, suit: 1 },
-          { id: 0, value: 9, suit: 2 },
-          { id: 0, value: 10, suit: 3 },
-          { id: 0, value: 10, suit: 4 },
-          { id: 0, value: 11, suit: 3 },
-          { id: 0, value: 11, suit: 4 },
+          { id: 10, value: 7, suit: 1 },
+          { id: 11, value: 7, suit: 2 },
+          { id: 12, value: 8, suit: 3 },
+          { id: 13, value: 8, suit: 4 },
+          { id: 14, value: 9, suit: 1 },
+          { id: 15, value: 9, suit: 2 },
+          { id: 16, value: 10, suit: 3 },
+          { id: 17, value: 10, suit: 4 },
+          { id: 18, value: 11, suit: 3 },
+          { id: 19, value: 11, suit: 4 },
         ],
       };
       const result = updateGameStateFromPlay(
@@ -1472,12 +1667,15 @@ describe('updateGameStateFromPlay', () => {
         playerStates: [
           {
             player: testPlayer1,
-            cardCount: 2,
+            cards: [
+              { id: 0, value: 1, suit: 1 },
+              { id: 1, value: 1, suit: 2 },
+            ],
             placementRank: 0,
           },
           {
             player: testPlayer2,
-            cardCount: 3,
+            cards: [{ id: 20, value: 12, suit: 1 }],
             placementRank: 0,
           },
         ],
