@@ -20,14 +20,17 @@ const task = new AsyncTask(
       lobbies.map(async (lobby) => {
         const { host, players, gameState } = lobby;
 
-        if (host.last_active <= sixtyMinutesAgo) {
+        if (host && host.last_active <= sixtyMinutesAgo) {
           await Promise.all(
             players.map(async (player) => {
               await UserModel.findByIdAndDelete(player._id);
             }),
           );
 
-          await GameStateModel.findByIdAndDelete(gameState._id);
+          if (gameState) {
+            await GameStateModel.findByIdAndDelete(gameState._id);
+          }
+
           await LobbyModel.findByIdAndDelete(lobby._id);
         }
       }),

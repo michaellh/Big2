@@ -24,7 +24,7 @@ module.exports = {
       { argsIgnorePattern: '^_' },
     ],
     'no-case-declarations': 'off',
-    'no-underscore-dangle': 'off'  
+    'no-underscore-dangle': 'off'
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {

@@ -123,32 +123,6 @@ const resolvers = {
         throw new GraphQLError(`Attempt to join game failed: ${err}`);
       }
     },
-    // changePlayerOrder: async (_root: unknown, args: { newOrder: string[] }, context: { userId: string }) => {
-    //   try {
-    //     const { newOrder } = args;
-    //     const { userId } = context;
-
-    //     const lobbyExists = await LobbyModel.findOne({
-    //       host: new Types.ObjectId(userId),
-    //     }).populate<{ players: IUser[] }>('players');
-    //     if (!lobbyExists) {
-    //       throw new GraphQLError('User is not the host of a lobby!', {
-    //         extensions: {
-    //           code: 'BAD_USER_INPUT',
-    //           invalidArgs: userId,
-    //         },
-    //       });
-    //     }
-
-    //     const updatedOrder: IUser[] = [];
-    //     for (let i = 0; i < lobbyExists.players.length; i += 1) {
-
-    //     }
-    //     lobbyExists.players.forEach(player => );
-    //   } catch (err) {
-    //     throw new GraphQLError(`Attempt to change player order failed: ${err}`);
-    //   }
-    // },
     startGame: async (
       _root: unknown,
       _args: unknown,

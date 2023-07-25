@@ -121,12 +121,14 @@ const Game = () => {
         handleSelectPlayCard={handleSelectPlayCard}
         handleSelectHandCard={handleSelectHandCard}
       />
+      <br />
       <div>
         <Button
           variant='contained'
           onClick={handlePlayCards}
+          disabled={playCards.length === 0}
         >
-          Play Cards
+          Play
         </Button>
         <Button
           variant='contained'

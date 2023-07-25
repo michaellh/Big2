@@ -57,11 +57,11 @@ const Lobby = () => {
   return (
     <div className='lobby'>
       <h3>{`Room code: ${data?.getLobby.code}`}</h3>
-      <h4>{`Room host: ${data?.getLobby.host}`}</h4>
+      <h4>{`Host: ${data?.getLobby.host}`}</h4>
       <p>{`You are ${state?.name}`}</p>
       <p>Player rotation:</p>
       {data?.getLobby.players.map((player) => (
-        <div>{player}</div>
+        <div key={player}>{player}</div>
       ))}
       <br />
       {state?.playerType === 'host' ? (

@@ -54,8 +54,11 @@ const MainMenu = () => {
   );
 
   return (
-    <div className='main-menu'>
+    <div className='main-menu playingCards fourColours'>
       <h1>Big 2</h1>
+      <h2>(Tien Len version)</h2>
+      <span className='card back'>*</span>
+      <a href='https://www.wikihow.com/Play-Tien-Len'>Rules</a>
       <form className='game-form'>
         <TextField
           variant='outlined'
