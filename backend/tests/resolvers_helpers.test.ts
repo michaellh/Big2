@@ -10,19 +10,19 @@ import {
   updateCurrentMove,
   updateGameStateFromPlay,
 } from '../utils/resolvers_helpers';
-import deckOfCards from '../utils/test_data';
+import { DECK_OF_CARDS } from '../utils/enums';
 import { Card, GameState } from '../schema';
 
 describe('selectRandomCards', () => {
   test('with 2 players', () => {
-    const result = selectRandomCards(deckOfCards, 2);
+    const result = selectRandomCards(DECK_OF_CARDS, 2);
 
     expect(result[0]).toHaveLength(13);
     expect(result[1]).toHaveLength(13);
   });
 
   test('with 3 players', () => {
-    const result = selectRandomCards(deckOfCards, 3);
+    const result = selectRandomCards(DECK_OF_CARDS, 3);
 
     expect(result[0]).toHaveLength(13);
     expect(result[1]).toHaveLength(13);
@@ -30,7 +30,7 @@ describe('selectRandomCards', () => {
   });
 
   test('with 4 players', () => {
-    const result = selectRandomCards(deckOfCards, 4);
+    const result = selectRandomCards(DECK_OF_CARDS, 4);
 
     expect(result[0]).toHaveLength(13);
     expect(result[1]).toHaveLength(13);
@@ -39,7 +39,7 @@ describe('selectRandomCards', () => {
   });
 
   test('with unique cards', () => {
-    const result = selectRandomCards(deckOfCards, 2);
+    const result = selectRandomCards(DECK_OF_CARDS, 2);
 
     expect(result[0][0].id).not.toBe(result[1][0].id);
   });

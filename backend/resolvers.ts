@@ -5,7 +5,7 @@ import { Types } from 'mongoose';
 import UserModel, { IUser } from './models/user';
 import LobbyModel from './models/lobby';
 import GameStateModel, { IPlayerState } from './models/gameState';
-import deckOfCards from './utils/test_data';
+import { DECK_OF_CARDS } from './utils/enums';
 import { GameInput, PlayerAction } from './schema';
 import {
   selectRandomCards,
@@ -179,7 +179,10 @@ const resolvers = {
           });
         }
 
-        const distributedCards = selectRandomCards(deckOfCards, players.length);
+        const distributedCards = selectRandomCards(
+          DECK_OF_CARDS,
+          players.length,
+        );
         let lowestCardId = 51;
         let lowestCardPlayerIndex = -1;
         for (let i = 0; i < distributedCards.length; i += 1) {

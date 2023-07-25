@@ -1,7 +1,9 @@
 import { useLocation } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
+import { Button } from '@mui/material';
 import useStartGame from '../hooks/useStartGame';
 import useGameStartSubscription from '../hooks/useGameStartSubscription';
+import '../styles.css';
 
 interface ILobby {
   getLobby: {
@@ -53,21 +55,22 @@ const Lobby = () => {
   }
 
   return (
-    <div>
-      <p>{`Room code: ${data?.getLobby.code}`}</p>
-      <p>{`Room host: ${data?.getLobby.host}`}</p>
-      <p>{`Hello ${state?.name}`}</p>
+    <div className='lobby'>
+      <h3>{`Room code: ${data?.getLobby.code}`}</h3>
+      <h4>{`Room host: ${data?.getLobby.host}`}</h4>
+      <p>{`You are ${state?.name}`}</p>
       <p>Player rotation:</p>
       {data?.getLobby.players.map((player) => (
         <div>{player}</div>
       ))}
+      <br />
       {state?.playerType === 'host' ? (
-        <button
-          type='button'
+        <Button
+          variant='contained'
           onClick={handleStartGame}
         >
           Start Game
-        </button>
+        </Button>
       ) : (
         <p>Please wait for the host to start the game...</p>
       )}

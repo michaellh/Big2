@@ -1,6 +1,9 @@
 import { MouseEventHandler } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Divider } from '@mui/material';
 import { PlayerState, GameState } from '../schema';
+import Cards from './Cards';
+import '../styles.css';
 
 interface GameOverProps {
   name: string | undefined;
@@ -23,27 +26,23 @@ const GameOver = ({ name, playerType, gameState }: GameOverProps) => {
   };
 
   return (
-    <div>
-      <div>Game Over!</div>
-      <div>Last Move: </div>
-      {gameState.currentMove.cards.map(
-        (card: { id: number; value: number; suit: number }) => (
-          <div key={card.id}>
-            {card.value} {card.suit}
-          </div>
-        ),
-      )}
+    <div className='game-over playingCards fourColours'>
+      <h1>Game Over!</h1>
+      <div>Last move by {gameState.currentMove.player}: </div>
+      <Cards cards={gameState.currentMove.cards} />
+      <Divider flexItem>Rankings</Divider>
       {gameState.playerStates.map((playerState: PlayerState) => (
         <div key={playerState.player}>
-          {`${playerState.player} Finish: ${playerState.placementRank}`}
+          {`${playerState.player} ranked: #${playerState.placementRank}`}
         </div>
       ))}
-      <button
-        type='button'
+      <br />
+      <Button
+        variant='contained'
         onClick={handleReturnToLobby}
       >
         Return to Lobby
-      </button>
+      </Button>
     </div>
   );
 };

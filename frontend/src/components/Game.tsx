@@ -1,11 +1,12 @@
-/* eslint-disable no-console */
 import { useLocation } from 'react-router-dom';
 import { useState, MouseEventHandler } from 'react';
+import { Button } from '@mui/material';
 import { Card, GameState } from '../schema';
 import usePlayerMove from '../hooks/usePlayerMove';
 import usePlayerMoveSubscription from '../hooks/usePlayerMoveSubscription';
 import Table from './Table';
 import GameOver from './GameOver';
+import '../styles.css';
 
 const Game = () => {
   const [playCards, setPlayCards] = useState<Card[]>([]);
@@ -111,53 +112,29 @@ const Game = () => {
   }
 
   return (
-    <div>
-      <p>{`You are ${state?.name}`}</p>
-      <Table gameState={gameState} />
-      <h3>Your Cards</h3>
-      {playCards.map((card: { id: number; value: number; suit: number }) => (
-        <div key={card.id}>
-          <button
-            type='button'
-            data-value={JSON.stringify({
-              id: card.id,
-              value: card.value,
-              suit: card.suit,
-            })}
-            onClick={handleSelectPlayCard}
-          >
-            {card.value} {card.suit}
-          </button>
-        </div>
-      ))}
-      <button
-        type='button'
-        onClick={handlePlayCards}
-      >
-        Play Cards
-      </button>
-      <button
-        type='button'
-        onClick={handlePass}
-      >
-        Pass
-      </button>
-      <h3>Your Hand</h3>
-      {handCards.map((card: { id: number; value: number; suit: number }) => (
-        <div key={card.id}>
-          <button
-            type='button'
-            data-value={JSON.stringify({
-              id: card.id,
-              value: card.value,
-              suit: card.suit,
-            })}
-            onClick={handleSelectHandCard}
-          >
-            {card.value} {card.suit}
-          </button>
-        </div>
-      ))}
+    <div className='game'>
+      <h4>{`You are: ${state?.name}`}</h4>
+      <Table
+        gameState={gameState}
+        playCards={playCards}
+        handCards={handCards}
+        handleSelectPlayCard={handleSelectPlayCard}
+        handleSelectHandCard={handleSelectHandCard}
+      />
+      <div>
+        <Button
+          variant='contained'
+          onClick={handlePlayCards}
+        >
+          Play Cards
+        </Button>
+        <Button
+          variant='contained'
+          onClick={handlePass}
+        >
+          Pass
+        </Button>
+      </div>
     </div>
   );
 };
