@@ -6,7 +6,6 @@ import usePlayerMove from '../../hooks/usePlayerMove';
 import usePlayerMoveSubscription from '../../hooks/usePlayerMoveSubscription';
 import Table from '../Table';
 import GameOver from '../GameOver';
-import '../styles.css';
 
 const Game = () => {
   const [playCards, setPlayCards] = useState<Card[]>([]);

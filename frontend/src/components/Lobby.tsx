@@ -3,7 +3,6 @@ import { gql, useQuery } from '@apollo/client';
 import { Button } from '@mui/material';
 import useStartGame from '../hooks/useStartGame';
 import useGameStartSubscription from '../hooks/useGameStartSubscription';
-import '../styles.css';
 
 interface ILobby {
   getLobby: {

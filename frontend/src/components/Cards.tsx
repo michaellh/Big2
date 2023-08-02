@@ -1,7 +1,6 @@
 import React, { MouseEventHandler } from 'react';
 import { Card } from '../schema';
 import CardComponent from './CardComponent';
-import '../styles.css';
 
 interface ComponentProps {
   cards: Card[];

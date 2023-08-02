@@ -2,7 +2,6 @@ import React, { MouseEventHandler } from 'react';
 import { Divider } from '@mui/material';
 import { GameState, Card } from '../../schema';
 import Cards from '../Cards';
-import '../styles.css';
 
 export interface ComponentProps {
   gameState: GameState;

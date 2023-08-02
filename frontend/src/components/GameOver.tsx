@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Divider } from '@mui/material';
 import { PlayerState, GameState } from '../schema';
 import Cards from './Cards';
-import '../styles.css';
 
 interface GameOverProps {
   name: string | undefined;

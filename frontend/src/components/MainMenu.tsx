@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button, TextField } from '@mui/material';
 import useHostGame from '../hooks/useHostGame';
 import useJoinGame from '../hooks/useJoinGame';
-import '../styles.css';
 
 interface FormError {
   message: string;
