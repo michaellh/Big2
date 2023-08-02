@@ -1,10 +1,10 @@
 import React, { MouseEventHandler } from 'react';
 import { Divider } from '@mui/material';
-import { GameState, Card } from '../schema';
-import Cards from './Cards';
+import { GameState, Card } from '../../schema';
+import Cards from '../Cards';
 import '../styles.css';
 
-interface ComponentProps {
+export interface ComponentProps {
   gameState: GameState;
   playCards: Card[];
   handCards: Card[];
@@ -33,8 +33,9 @@ const Table: React.FC<ComponentProps> = ({
             return (
               <h4
                 key={player}
+                data-testid={player}
                 className={
-                  currentMove.player === foundPlayerState.player
+                  currentMove.playersInPlay[0] === foundPlayerState.player
                     ? 'currentTurnPlayer'
                     : 'player'
                 }

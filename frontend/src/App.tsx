@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainMenu from './components/MainMenu';
 import Lobby from './components/Lobby';
-import Game from './components/Game';
+import Game from './components/Game/Game';
 
 const App = () => (
   <Router>

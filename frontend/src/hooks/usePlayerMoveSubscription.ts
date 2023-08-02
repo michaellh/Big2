@@ -10,7 +10,7 @@ interface SubscriptionData {
   };
 }
 
-const PLAYER_MOVE_SUBSCRIPTION = gql`
+export const PLAYER_MOVE_SUBSCRIPTION = gql`
   subscription OnPlayerMove {
     playerMove {
       turnRotation

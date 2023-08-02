@@ -1,14 +1,14 @@
 import { gql, useMutation } from '@apollo/client';
-import { Card, GameState } from '../schema';
+import { Card } from '../schema';
 
-const PLAYER_MOVE = gql`
+export const PLAYER_MOVE = gql`
   mutation playerMove($playerAction: PlayerAction!) {
     playerMove(playerAction: $playerAction)
   }
 `;
 
 interface PlayerMoveMutationData {
-  playerMove: GameState;
+  __typename: undefined;
 }
 
 interface PlayerMoveMutationVariables {
@@ -26,7 +26,7 @@ const usePlayerMove = (cardsPlayed: Card[], action: string) => {
 
   const playerMove = async () => {
     try {
-      const { data } = await playerMoveMutation({
+      await playerMoveMutation({
         variables: {
           playerAction: {
             cardsPlayed,
@@ -34,11 +34,11 @@ const usePlayerMove = (cardsPlayed: Card[], action: string) => {
           },
         },
       });
-
-      return { data: data?.playerMove };
     } catch (error) {
-      return { error };
+      return error;
     }
+
+    return undefined;
   };
 
   return playerMove;

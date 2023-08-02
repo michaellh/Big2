@@ -25,7 +25,10 @@
   },
   "include": [
     "src",
-    ".eslintrc.js"
+    ".eslintrc.js",
+    "jest.config.ts",
+    "cssTransform.js",
+    "src/setupTests.js"
   ]
 }
 

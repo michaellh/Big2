@@ -4,7 +4,7 @@
 
 [Rules](https://www.wikihow.com/Play-Tien-Len)
 
-![Game in-progress](image-1.png)
+![Game in-progress](image.png)
 
 ## Contents
 
@@ -27,7 +27,7 @@ This is a monorepo containing a React frontend and an Express backend. The front
 2. Run `docker build -t <image> .` in root folder
 3. Tag image using `docker tag <image ID/name> <image ID/name:versioning>`
 4. Push up the container into DockerHub (optional)
-5. Pull/get the container in web server
+5. Pull/get the container in host machine/web server
 6. Run `docker run -p 80:80 <docker container with tag if added>`
 7. If the reverse proxy has been set up correctly then the app will be deployed according to its configuration using port 80 (HTTP)
 

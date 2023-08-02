@@ -12,6 +12,7 @@ const Cards: React.FC<ComponentProps> = ({ cards, handleSelectCard }) => (
   <ol className='cardsAlign table'>
     {cards.map((card) => (
       <CardComponent
+        key={card.id}
         card={card}
         onClick={handleSelectCard}
       />

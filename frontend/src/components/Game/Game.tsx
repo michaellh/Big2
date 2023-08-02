@@ -1,11 +1,11 @@
 import { useLocation } from 'react-router-dom';
 import { useState, MouseEventHandler } from 'react';
 import { Button } from '@mui/material';
-import { Card, GameState } from '../schema';
-import usePlayerMove from '../hooks/usePlayerMove';
-import usePlayerMoveSubscription from '../hooks/usePlayerMoveSubscription';
-import Table from './Table';
-import GameOver from './GameOver';
+import { Card, GameState } from '../../schema';
+import usePlayerMove from '../../hooks/usePlayerMove';
+import usePlayerMoveSubscription from '../../hooks/usePlayerMoveSubscription';
+import Table from '../Table';
+import GameOver from '../GameOver';
 import '../styles.css';
 
 const Game = () => {
@@ -45,7 +45,7 @@ const Game = () => {
   }
 
   const handlePlayCards = async () => {
-    const { error } = await playerPlayMove();
+    const error = await playerPlayMove();
 
     if (error) {
       alert(error);
@@ -55,7 +55,7 @@ const Game = () => {
   };
 
   const handlePass = async () => {
-    const { error } = await playerPassMove();
+    const error = await playerPassMove();
 
     if (error) {
       alert(error);
@@ -124,6 +124,7 @@ const Game = () => {
       <br />
       <div>
         <Button
+          data-testid='play'
           variant='contained'
           onClick={handlePlayCards}
           disabled={playCards.length === 0}
@@ -131,6 +132,7 @@ const Game = () => {
           Play
         </Button>
         <Button
+          data-testid='pass'
           variant='contained'
           onClick={handlePass}
         >
