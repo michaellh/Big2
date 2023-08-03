@@ -24,6 +24,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  height: 100vh;
 }
 
 .playTable {
@@ -32,8 +33,9 @@
   align-items: center;
   border: 3px solid green;
   background-color: greenyellow;
-  max-width: 70%;
-  min-width: 70%;
+  max-width: 70vw; 
+  min-width: 70vw; 
+  min-height: 80vh; 
 }
 
 .playerRotation {
@@ -56,7 +58,6 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .game-over {

@@ -132,10 +132,6 @@ export const updateCurrentMove = (
         gameStateCopy.currentMove.player = currentPlayer;
         gameStateCopy.currentMove.playersInPlay.push(currentPlayer);
       }
-      const shiftPlayer = gameStateCopy.turnRotation.shift();
-      if (shiftPlayer) {
-        gameStateCopy.turnRotation.push(shiftPlayer);
-      }
     }
   }
 
@@ -155,7 +151,7 @@ export const getPlayType = (cards: Card[]): string | undefined => {
   if (isTriple(cards)) return 'triple';
   if (isBomb(cards)) return 'bomb';
   if (isStraight(cards)) return 'straight';
-  if (isChop(cards)) return 'chop';
+  if (isChop(cards) || isChop(cards, 4) || isChop(cards, 5)) return 'chop';
   return undefined;
 };
 

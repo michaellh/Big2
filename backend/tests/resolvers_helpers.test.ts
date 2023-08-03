@@ -420,7 +420,7 @@ describe('updateCurrentMove', () => {
     );
 
     expect(result).toStrictEqual({
-      turnRotation: [testPlayer2, testPlayer1],
+      turnRotation: [testPlayer1, testPlayer2],
       currentMove: {
         cards: playerAction.cardsPlayed,
         play: 'single',
@@ -541,7 +541,7 @@ describe('updateGameStateFromPlay', () => {
 
     expect(result.success).toBe(true);
     expect(result.updatedGameState).toStrictEqual({
-      turnRotation: [testPlayer2, testPlayer1],
+      turnRotation: [testPlayer1, testPlayer2],
       currentMove: {
         cards: playerAction.cardsPlayed,
         play: 'single',
@@ -618,7 +618,6 @@ describe('updateGameStateFromPlay', () => {
     });
 
     test('beat by a higher single', () => {
-      gameState.turnRotation = [testPlayer2, testPlayer1];
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
       gameState.currentMove.cards = [{ id: 0, value: 3, suit: 1 }];
       gameState.currentMove.play = 'single';
@@ -668,7 +667,6 @@ describe('updateGameStateFromPlay', () => {
     });
 
     test('when current move = single 2 & is beat by a chop', () => {
-      gameState.turnRotation = [testPlayer2, testPlayer1];
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
       gameState.currentMove.cards = [{ id: 0, value: 15, suit: 1 }];
       gameState.currentMove.play = 'single';
@@ -730,7 +728,6 @@ describe('updateGameStateFromPlay', () => {
     });
 
     test('when current move = single 2 & is beat by a bomb', () => {
-      gameState.turnRotation = [testPlayer2, testPlayer1];
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
       gameState.currentMove.cards = [{ id: 0, value: 15, suit: 1 }];
       gameState.currentMove.play = 'single';
@@ -850,7 +847,6 @@ describe('updateGameStateFromPlay', () => {
     });
 
     test('beat by a higher pair', () => {
-      gameState.turnRotation = [testPlayer2, testPlayer1];
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
       gameState.currentMove.cards = [
         { id: 0, value: 2, suit: 1 },
@@ -905,7 +901,6 @@ describe('updateGameStateFromPlay', () => {
     });
 
     test('when current move = pair 2s & is beat by a 4 chop', () => {
-      gameState.turnRotation = [testPlayer2, testPlayer1];
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
       gameState.currentMove.cards = [
         { id: 0, value: 15, suit: 1 },
@@ -1036,7 +1031,6 @@ describe('updateGameStateFromPlay', () => {
     });
 
     test('beat by a higher triple', () => {
-      gameState.turnRotation = [testPlayer2, testPlayer1];
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
       gameState.currentMove.cards = [
         { id: 0, value: 2, suit: 1 },
@@ -1100,7 +1094,6 @@ describe('updateGameStateFromPlay', () => {
     });
 
     test('when current move = triple 2s & is beat by a 5 chop', () => {
-      gameState.turnRotation = [testPlayer2, testPlayer1];
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
       gameState.currentMove.cards = [
         { id: 0, value: 15, suit: 1 },
@@ -1234,7 +1227,6 @@ describe('updateGameStateFromPlay', () => {
     });
 
     test('beat by a higher bomb', () => {
-      gameState.turnRotation = [testPlayer2, testPlayer1];
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
       gameState.currentMove.cards = [
         { id: 0, value: 2, suit: 1 },
@@ -1412,7 +1404,6 @@ describe('updateGameStateFromPlay', () => {
     });
 
     test('beat by a higher straight of same size', () => {
-      gameState.turnRotation = [testPlayer2, testPlayer1];
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
       gameState.currentMove.cards = [
         { id: 0, value: 1, suit: 1 },
@@ -1603,7 +1594,6 @@ describe('updateGameStateFromPlay', () => {
     });
 
     test('beat by a higher chop of same size', () => {
-      gameState.turnRotation = [testPlayer2, testPlayer1];
       gameState.currentMove.playersInPlay = [testPlayer2, testPlayer1];
       gameState.currentMove.cards = [
         { id: 0, value: 2, suit: 1 },

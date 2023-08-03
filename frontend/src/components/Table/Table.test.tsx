@@ -222,13 +222,6 @@ describe('Table', () => {
     });
   });
 
-  test('should not render current play and your play sections without cards', async () => {
-    const { queryByText } = render(<Table {...mockProps} />);
-
-    expect(queryByText('Current Play')).toBeNull();
-    expect(queryByText('Your Play')).toBeNull();
-  });
-
   test('should render current play section', async () => {
     const currentMove = {
       cards: [

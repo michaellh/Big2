@@ -293,26 +293,23 @@ const resolvers = {
 
       if (action === 'pass') {
         gameState.currentMove.playersInPlay.shift();
-        const shiftPlayer = gameState.turnRotation.shift();
-        if (shiftPlayer) {
-          gameState.turnRotation.push(shiftPlayer);
-        }
 
         if (gameState.currentMove.playersInPlay.length === 1) {
-          while (gameState.turnRotation[0] !== gameState.currentMove.player) {
-            const rotatePlayer = gameState.turnRotation.shift();
+          const turnRotationCopy = [...gameState.turnRotation];
+          while (turnRotationCopy[0] !== gameState.currentMove.player) {
+            const rotatePlayer = turnRotationCopy.shift();
 
             if (rotatePlayer) {
-              gameState.turnRotation.push(rotatePlayer);
+              turnRotationCopy.push(rotatePlayer);
             }
           }
 
-          gameState.currentMove.playersInPlay = gameState.turnRotation;
-          const [firstPlayer] = gameState.turnRotation;
+          gameState.currentMove.playersInPlay = turnRotationCopy;
+          const [firstPlayer] = turnRotationCopy;
           Object.assign(gameState.currentMove, {
-            player: firstPlayer,
             cards: [],
             play: '',
+            player: firstPlayer,
           });
         }
         await gameState.save();

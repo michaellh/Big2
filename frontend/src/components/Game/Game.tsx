@@ -100,6 +100,8 @@ const Game = () => {
     }
   };
 
+  const isYourTurn = gameState.currentMove.playersInPlay[0] === state?.name;
+
   if (gameState.turnRotation.length === 1) {
     return (
       <GameOver
@@ -112,7 +114,6 @@ const Game = () => {
 
   return (
     <div className='game'>
-      <h4>{`You are: ${state?.name}`}</h4>
       <Table
         gameState={gameState}
         playCards={playCards}
@@ -126,7 +127,7 @@ const Game = () => {
           data-testid='play'
           variant='contained'
           onClick={handlePlayCards}
-          disabled={playCards.length === 0}
+          disabled={playCards.length === 0 || !isYourTurn}
         >
           Play
         </Button>
@@ -134,6 +135,11 @@ const Game = () => {
           data-testid='pass'
           variant='contained'
           onClick={handlePass}
+          disabled={
+            (gameState.currentMove.cards.length === 0 &&
+              gameState.currentMove.player === state?.name) ||
+            !isYourTurn
+          }
         >
           Pass
         </Button>

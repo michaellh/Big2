@@ -30,7 +30,7 @@ const mockUseState = <T,>(initialState: T) => {
   return [initialState, setState] as const;
 };
 
-describe.only('Game', () => {
+describe('Game', () => {
   const mockQueries = [
     {
       request: {
@@ -87,7 +87,7 @@ describe.only('Game', () => {
       .mockReturnValueOnce([handCardsMockValue, setHandCardsMock])
       .mockReturnValueOnce([gameStateMockValue, setGameStateMock]);
 
-    const { getByText, getByTestId } = render(
+    const { getByTestId } = render(
       <MockedProvider
         mocks={mockQueries}
         addTypename={false}
@@ -96,7 +96,6 @@ describe.only('Game', () => {
       </MockedProvider>,
     );
 
-    expect(getByText('You are: tester')).toBeTruthy();
     expect(getByTestId('play')).toBeTruthy();
     expect(getByTestId('pass')).toBeTruthy();
   });
@@ -142,7 +141,54 @@ describe.only('Game', () => {
     expect(disabledPlayButton).toBeDisabled();
   });
 
-  test('should click play and pass', async () => {
+  test('should see play and pass disabled if not player turn', async () => {
+    const [playCardsMockValue, setPlayCardsMock] = mockUseState<Card[]>([
+      { id: 0, value: 3, suit: 1 },
+    ]);
+    const [handCardsMockValue, setHandCardsMock] = mockUseState([]);
+    const [gameStateMockValue, setGameStateMock] = mockUseState<GameState>({
+      turnRotation: [],
+      currentMove: {
+        cards: [{ id: 1, value: 3, suit: 2 }],
+        play: 'single',
+        player: 'tester',
+        playersInPlay: ['a', 'tester'],
+      },
+      playerStates: [
+        {
+          player: '',
+          cards: [],
+          placementRank: 0,
+        },
+      ],
+      nextPlacementRank: 0,
+    });
+
+    jest
+      .spyOn(React, 'useState')
+      .mockReturnValueOnce([playCardsMockValue, setPlayCardsMock])
+      .mockReturnValueOnce([handCardsMockValue, setHandCardsMock])
+      .mockReturnValueOnce([gameStateMockValue, setGameStateMock]);
+
+    const { getByTestId } = render(
+      <MockedProvider
+        mocks={mockQueries}
+        addTypename={false}
+      >
+        <Game />
+      </MockedProvider>,
+    );
+
+    const disabledPlayButton = getByTestId('play');
+    expect(disabledPlayButton).toBeInTheDocument();
+    expect(disabledPlayButton).toBeDisabled();
+
+    const disabledPassButton = getByTestId('pass');
+    expect(disabledPassButton).toBeInTheDocument();
+    expect(disabledPassButton).toBeDisabled();
+  });
+
+  test('should see pass disabled if player has a free turn', async () => {
     const [playCardsMockValue, setPlayCardsMock] = mockUseState<Card[]>([
       { id: 0, value: 3, suit: 1 },
     ]);
@@ -152,8 +198,51 @@ describe.only('Game', () => {
       currentMove: {
         cards: [],
         play: '',
-        player: '',
-        playersInPlay: [],
+        player: 'tester',
+        playersInPlay: ['tester', 'a'],
+      },
+      playerStates: [
+        {
+          player: '',
+          cards: [],
+          placementRank: 0,
+        },
+      ],
+      nextPlacementRank: 0,
+    });
+
+    jest
+      .spyOn(React, 'useState')
+      .mockReturnValueOnce([playCardsMockValue, setPlayCardsMock])
+      .mockReturnValueOnce([handCardsMockValue, setHandCardsMock])
+      .mockReturnValueOnce([gameStateMockValue, setGameStateMock]);
+
+    const { getByTestId } = render(
+      <MockedProvider
+        mocks={mockQueries}
+        addTypename={false}
+      >
+        <Game />
+      </MockedProvider>,
+    );
+
+    const disabledPassButton = getByTestId('pass');
+    expect(disabledPassButton).toBeInTheDocument();
+    expect(disabledPassButton).toBeDisabled();
+  });
+
+  test('should click play and pass', async () => {
+    const [playCardsMockValue, setPlayCardsMock] = mockUseState<Card[]>([
+      { id: 0, value: 3, suit: 1 },
+    ]);
+    const [handCardsMockValue, setHandCardsMock] = mockUseState([]);
+    const [gameStateMockValue, setGameStateMock] = mockUseState<GameState>({
+      turnRotation: [],
+      currentMove: {
+        cards: [{ id: 1, value: 3, suit: 2 }],
+        play: 'single',
+        player: 'a',
+        playersInPlay: ['tester'],
       },
       playerStates: [
         {

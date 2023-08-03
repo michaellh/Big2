@@ -46,24 +46,16 @@ const Table: React.FC<ComponentProps> = ({
           return null;
         })}
       </div>
+      <Divider flexItem>Current Play</Divider>
+      <Cards cards={currentMove.cards} />
       {currentMove.cards.length > 0 ? (
-        <>
-          <Divider flexItem>Current Play</Divider>
-          <Cards cards={currentMove.cards} />
-          {currentMove.cards.length > 0 ? (
-            <p>{`Played by ${currentMove.player}`}</p>
-          ) : null}
-        </>
+        <p>{`Played by ${currentMove.player}`}</p>
       ) : null}
-      {playCards.length > 0 ? (
-        <>
-          <Divider flexItem>Your Play</Divider>
-          <Cards
-            cards={playCards}
-            handleSelectCard={handleSelectPlayCard}
-          />
-        </>
-      ) : null}
+      <Divider flexItem>Your Play</Divider>
+      <Cards
+        cards={playCards}
+        handleSelectCard={handleSelectPlayCard}
+      />
       <Divider flexItem>Your Hand</Divider>
       <Cards
         cards={handCards}
