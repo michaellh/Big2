@@ -95,6 +95,11 @@ export const updateCurrentMove = (
   ) as GameState;
   gameStateCopy.currentMove.play = play;
   gameStateCopy.currentMove.cards = playerAction.cardsPlayed;
+  const currentPlayer = gameStateCopy.currentMove.playersInPlay.shift();
+  if (currentPlayer) {
+    gameStateCopy.currentMove.player = currentPlayer;
+    gameStateCopy.currentMove.playersInPlay.push(currentPlayer);
+  }
 
   const playerState = gameStateCopy.playerStates.find(
     (state) => state.player === user,
@@ -109,12 +114,14 @@ export const updateCurrentMove = (
     );
 
     if (playerState.cards.length === 0) {
-      gameStateCopy.turnRotation.shift();
-      gameStateCopy.currentMove.playersInPlay.shift();
-      const [topPlayer] = gameStateCopy.currentMove.playersInPlay;
-      gameStateCopy.currentMove.player = topPlayer;
       playerState.placementRank = gameStateCopy.nextPlacementRank;
       gameStateCopy.nextPlacementRank += 1;
+      gameStateCopy.currentMove.playersInPlay.pop();
+
+      const playerIndex = gameStateCopy.turnRotation.indexOf(
+        gameStateCopy.currentMove.player,
+      );
+      gameStateCopy.turnRotation.splice(playerIndex, 1);
 
       if (
         gameStateCopy.nextPlacementRank === gameStateCopy.playerStates.length
@@ -125,12 +132,6 @@ export const updateCurrentMove = (
         if (lastRankPlayer) {
           lastRankPlayer.placementRank = gameStateCopy.nextPlacementRank;
         }
-      }
-    } else {
-      const currentPlayer = gameStateCopy.currentMove.playersInPlay.shift();
-      if (currentPlayer) {
-        gameStateCopy.currentMove.player = currentPlayer;
-        gameStateCopy.currentMove.playersInPlay.push(currentPlayer);
       }
     }
   }
@@ -346,4 +347,29 @@ export const updateGameStateFromPlay = (
     success,
     failCause: success ? 'Play successful' : failCause,
   };
+};
+
+export const updateGameStateAfterWin = (gameState: GameState): GameState => {
+  const gameStateCopy: GameState = JSON.parse(
+    JSON.stringify(gameState),
+  ) as GameState;
+
+  const turnRotationCopy = [...gameStateCopy.turnRotation];
+  while (turnRotationCopy[0] !== gameStateCopy.currentMove.player) {
+    const rotatePlayer = turnRotationCopy.shift();
+
+    if (rotatePlayer) {
+      turnRotationCopy.push(rotatePlayer);
+    }
+  }
+
+  gameStateCopy.currentMove.playersInPlay = turnRotationCopy;
+  const [firstPlayer] = turnRotationCopy;
+  Object.assign(gameStateCopy.currentMove, {
+    cards: [],
+    play: '',
+    player: firstPlayer,
+  });
+
+  return gameStateCopy;
 };

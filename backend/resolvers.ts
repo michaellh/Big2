@@ -10,6 +10,7 @@ import { GameInput, PlayerAction } from './schema';
 import {
   selectRandomCards,
   updateGameStateFromPlay,
+  updateGameStateAfterWin,
 } from './utils/resolvers_helpers';
 import config from './utils/config';
 
@@ -272,14 +273,27 @@ const resolvers = {
           );
 
         if (success) {
-          Object.assign(gameState, {
+          const gameStatePropsToUpdate = {
             turnRotation: updatedGameState.turnRotation,
             currentMove: updatedGameState.currentMove,
             playerStates: updatedGameState.playerStates,
             nextPlacementRank: updatedGameState.nextPlacementRank,
-          });
-          await gameState.save();
+          };
 
+          if (updatedGameState.currentMove.playersInPlay.length === 1) {
+            const updatedWinGameState =
+              updateGameStateAfterWin(updatedGameState);
+
+            Object.assign(gameStatePropsToUpdate, {
+              turnRotation: updatedWinGameState.turnRotation,
+              currentMove: updatedWinGameState.currentMove,
+              playerStates: updatedWinGameState.playerStates,
+            });
+          }
+
+          Object.assign(gameState, gameStatePropsToUpdate);
+
+          await gameState.save();
           await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
         } else {
           throw new GraphQLError(failCause, {
@@ -294,29 +308,53 @@ const resolvers = {
       if (action === 'pass') {
         gameState.currentMove.playersInPlay.shift();
 
-        if (gameState.currentMove.playersInPlay.length === 1) {
-          const turnRotationCopy = [...gameState.turnRotation];
-          while (turnRotationCopy[0] !== gameState.currentMove.player) {
-            const rotatePlayer = turnRotationCopy.shift();
+        if (
+          gameState.currentMove.playersInPlay.indexOf(
+            gameState.currentMove.player,
+          ) === -1
+        ) {
+          if (gameState.currentMove.playersInPlay.length === 0) {
+            const currentMovePlayerIndex = gameState.playerStates.findIndex(
+              (playerState) =>
+                playerState.player === gameState.currentMove.player,
+            );
+            let freePlayerIndex = currentMovePlayerIndex + 1;
+            while (freePlayerIndex !== currentMovePlayerIndex) {
+              if (freePlayerIndex > gameState.playerStates.length - 1) {
+                freePlayerIndex = 0;
+              }
 
-            if (rotatePlayer) {
-              turnRotationCopy.push(rotatePlayer);
+              if (gameState.playerStates[freePlayerIndex].placementRank === 0) {
+                gameState.currentMove.player =
+                  gameState.playerStates[freePlayerIndex].player;
+                freePlayerIndex = currentMovePlayerIndex;
+              }
             }
-          }
 
-          gameState.currentMove.playersInPlay = turnRotationCopy;
-          const [firstPlayer] = turnRotationCopy;
-          Object.assign(gameState.currentMove, {
-            cards: [],
-            play: '',
-            player: firstPlayer,
-          });
+            const tempTurnRotation = [...gameState.turnRotation];
+            while (tempTurnRotation[0] !== gameState.currentMove.player) {
+              const rotatePlayer = tempTurnRotation.shift();
+
+              if (rotatePlayer) {
+                tempTurnRotation.push(rotatePlayer);
+              }
+            }
+
+            gameState.currentMove.cards = [];
+            gameState.currentMove.play = '';
+            gameState.currentMove.playersInPlay = tempTurnRotation;
+          }
+        } else if (gameState.currentMove.playersInPlay.length === 1) {
+          const updatedWinGameState = updateGameStateAfterWin(gameState);
+
+          Object.assign(gameState, updatedWinGameState);
         }
+
         await gameState.save();
         await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
       }
 
-      if (gameState.turnRotation.length <= 1) {
+      if (gameState.nextPlacementRank === gameState.playerStates.length) {
         await GameStateModel.findByIdAndRemove(gameState._id);
       }
     },

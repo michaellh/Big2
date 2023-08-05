@@ -18,28 +18,26 @@ const Table: React.FC<ComponentProps> = ({
   handleSelectPlayCard,
   handleSelectHandCard,
 }) => {
-  const { playerStates, currentMove, turnRotation } = gameState;
+  const { playerStates, currentMove } = gameState;
 
   return (
     <div className='playTable playingCards fourColours'>
       <div className='playerRotation'>
-        {turnRotation.map((player) => {
-          const foundPlayerState = playerStates.find(
-            (playerState) => playerState.player === player,
-          );
+        {playerStates.map((playerState) => {
+          const { player, cards } = playerState;
 
-          if (foundPlayerState) {
+          if (playerState) {
             return (
               <h4
                 key={player}
                 data-testid={player}
                 className={
-                  currentMove.playersInPlay[0] === foundPlayerState.player
+                  currentMove.playersInPlay[0] === player
                     ? 'currentTurnPlayer'
                     : 'player'
                 }
               >
-                {`${player} # of Cards: ${foundPlayerState.cards.length}`}
+                {`${player} # of Cards: ${cards.length}`}
               </h4>
             );
           }

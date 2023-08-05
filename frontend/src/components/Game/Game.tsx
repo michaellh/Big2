@@ -102,7 +102,7 @@ const Game = () => {
 
   const isYourTurn = gameState.currentMove.playersInPlay[0] === state?.name;
 
-  if (gameState.turnRotation.length === 1) {
+  if (gameState.nextPlacementRank === gameState.playerStates.length) {
     return (
       <GameOver
         name={state?.name}

@@ -373,15 +373,16 @@ describe('updateCurrentMove', () => {
   let gameState: GameState;
   const testPlayer1 = 'a';
   const testPlayer2 = 'b';
+  const testPlayer3 = 'c';
 
   beforeEach(() => {
     gameState = {
-      turnRotation: [testPlayer1, testPlayer2],
+      turnRotation: [testPlayer1, testPlayer2, testPlayer3],
       currentMove: {
         cards: [],
         play: '',
         player: testPlayer1,
-        playersInPlay: [testPlayer1, testPlayer2],
+        playersInPlay: [testPlayer1, testPlayer2, testPlayer3],
       },
       playerStates: [
         {
@@ -398,6 +399,15 @@ describe('updateCurrentMove', () => {
             { id: 2, value: 1, suit: 3 },
             { id: 3, value: 1, suit: 4 },
             { id: 4, value: 2, suit: 1 },
+          ],
+          placementRank: 0,
+        },
+        {
+          player: testPlayer3,
+          cards: [
+            { id: 5, value: 2, suit: 2 },
+            { id: 6, value: 2, suit: 3 },
+            { id: 7, value: 2, suit: 4 },
           ],
           placementRank: 0,
         },
@@ -420,12 +430,12 @@ describe('updateCurrentMove', () => {
     );
 
     expect(result).toStrictEqual({
-      turnRotation: [testPlayer1, testPlayer2],
+      turnRotation: [testPlayer1, testPlayer2, testPlayer3],
       currentMove: {
         cards: playerAction.cardsPlayed,
         play: 'single',
         player: testPlayer1,
-        playersInPlay: [testPlayer2, testPlayer1],
+        playersInPlay: [testPlayer2, testPlayer3, testPlayer1],
       },
       playerStates: [
         {
@@ -442,12 +452,21 @@ describe('updateCurrentMove', () => {
           ],
           placementRank: 0,
         },
+        {
+          player: testPlayer3,
+          cards: [
+            { id: 5, value: 2, suit: 2 },
+            { id: 6, value: 2, suit: 3 },
+            { id: 7, value: 2, suit: 4 },
+          ],
+          placementRank: 0,
+        },
       ],
       nextPlacementRank: 1,
     });
   });
 
-  test('when a player runs out of cards with play', () => {
+  test('when a player runs out of cards with 3 players', () => {
     gameState.playerStates[0].cards = [{ id: 0, value: 1, suit: 1 }];
     const playerAction = {
       name: testPlayer1,
@@ -462,12 +481,12 @@ describe('updateCurrentMove', () => {
     );
 
     expect(result).toStrictEqual({
-      turnRotation: [testPlayer2],
+      turnRotation: [testPlayer2, testPlayer3],
       currentMove: {
         cards: playerAction.cardsPlayed,
         play: 'single',
-        player: testPlayer2,
-        playersInPlay: [testPlayer2],
+        player: testPlayer1,
+        playersInPlay: [testPlayer2, testPlayer3],
       },
       playerStates: [
         {
@@ -482,7 +501,16 @@ describe('updateCurrentMove', () => {
             { id: 3, value: 1, suit: 4 },
             { id: 4, value: 2, suit: 1 },
           ],
-          placementRank: 2,
+          placementRank: 0,
+        },
+        {
+          player: testPlayer3,
+          cards: [
+            { id: 5, value: 2, suit: 2 },
+            { id: 6, value: 2, suit: 3 },
+            { id: 7, value: 2, suit: 4 },
+          ],
+          placementRank: 0,
         },
       ],
       nextPlacementRank: 2,
