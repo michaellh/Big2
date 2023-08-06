@@ -516,6 +516,120 @@ describe('updateCurrentMove', () => {
       nextPlacementRank: 2,
     });
   });
+
+  test('when a player beats a finishing play as the last player in play', () => {
+    gameState.turnRotation = [testPlayer1, testPlayer2];
+    gameState.nextPlacementRank = 2;
+    gameState.playerStates[2].cards = [];
+    gameState.playerStates[2].placementRank = 1;
+    gameState.currentMove.cards = [{ id: 0, value: 1, suit: 1 }];
+    gameState.currentMove.player = testPlayer3;
+    gameState.currentMove.play = 'single';
+    gameState.currentMove.playersInPlay = [testPlayer1];
+    gameState.playerStates[0].cards = [
+      { id: 1, value: 1, suit: 2 },
+      { id: 2, value: 1, suit: 3 },
+    ];
+
+    const playerAction = {
+      name: testPlayer1,
+      action: 'play',
+      cardsPlayed: [{ id: 1, value: 1, suit: 2 }],
+    };
+    const result = updateCurrentMove(
+      testPlayer1,
+      gameState,
+      'single',
+      playerAction,
+    );
+
+    expect(result).toStrictEqual({
+      turnRotation: [testPlayer1, testPlayer2],
+      currentMove: {
+        cards: [],
+        play: '',
+        player: testPlayer1,
+        playersInPlay: [testPlayer1, testPlayer2],
+      },
+      playerStates: [
+        {
+          player: testPlayer1,
+          cards: [{ id: 2, value: 1, suit: 3 }],
+          placementRank: 0,
+        },
+        {
+          player: testPlayer2,
+          cards: [
+            { id: 2, value: 1, suit: 3 },
+            { id: 3, value: 1, suit: 4 },
+            { id: 4, value: 2, suit: 1 },
+          ],
+          placementRank: 0,
+        },
+        {
+          player: testPlayer3,
+          cards: [],
+          placementRank: 1,
+        },
+      ],
+      nextPlacementRank: 2,
+    });
+  });
+
+  test('when a player beats a finishing play with their finishing play to end game', () => {
+    gameState.turnRotation = [testPlayer1, testPlayer2];
+    gameState.nextPlacementRank = 2;
+    gameState.playerStates[2].cards = [];
+    gameState.playerStates[2].placementRank = 1;
+    gameState.currentMove.cards = [{ id: 0, value: 1, suit: 1 }];
+    gameState.currentMove.player = testPlayer3;
+    gameState.currentMove.play = 'single';
+    gameState.currentMove.playersInPlay = [testPlayer1];
+    gameState.playerStates[0].cards = [{ id: 1, value: 1, suit: 2 }];
+    const playerAction = {
+      name: testPlayer1,
+      action: 'play',
+      cardsPlayed: [{ id: 1, value: 1, suit: 2 }],
+    };
+    const result = updateCurrentMove(
+      testPlayer1,
+      gameState,
+      'single',
+      playerAction,
+    );
+
+    expect(result).toStrictEqual({
+      turnRotation: [testPlayer2],
+      currentMove: {
+        cards: playerAction.cardsPlayed,
+        play: 'single',
+        player: testPlayer1,
+        playersInPlay: [],
+      },
+      playerStates: [
+        {
+          player: testPlayer1,
+          cards: [],
+          placementRank: 2,
+        },
+        {
+          player: testPlayer2,
+          cards: [
+            { id: 2, value: 1, suit: 3 },
+            { id: 3, value: 1, suit: 4 },
+            { id: 4, value: 2, suit: 1 },
+          ],
+          placementRank: 3,
+        },
+        {
+          player: testPlayer3,
+          cards: [],
+          placementRank: 1,
+        },
+      ],
+      nextPlacementRank: 3,
+    });
+  });
 });
 
 describe('updateGameStateFromPlay', () => {

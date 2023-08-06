@@ -1,4 +1,5 @@
 import ReactDOM from 'react-dom/client';
+import ApolloLinkTimeout from 'apollo-link-timeout';
 import {
   ApolloClient,
   InMemoryCache,
@@ -25,9 +26,11 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+const timeoutLink = new ApolloLinkTimeout(7000);
 const { hostname } = window.location;
 const backendPort = process.env.NODE_ENV === 'production' ? 80 : 3001;
 const httpLink = createHttpLink({ uri: `http://${hostname}:${backendPort}` });
+const timeoutHttpLink = timeoutLink.concat(httpLink);
 
 const wsLink = new GraphQLWsLink(
   createClient({
@@ -51,7 +54,7 @@ const splitLink = split(
     );
   },
   wsLink,
-  authLink.concat(httpLink),
+  authLink.concat(timeoutHttpLink),
 );
 
 const client = new ApolloClient({

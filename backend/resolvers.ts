@@ -273,25 +273,7 @@ const resolvers = {
           );
 
         if (success) {
-          const gameStatePropsToUpdate = {
-            turnRotation: updatedGameState.turnRotation,
-            currentMove: updatedGameState.currentMove,
-            playerStates: updatedGameState.playerStates,
-            nextPlacementRank: updatedGameState.nextPlacementRank,
-          };
-
-          if (updatedGameState.currentMove.playersInPlay.length === 1) {
-            const updatedWinGameState =
-              updateGameStateAfterWin(updatedGameState);
-
-            Object.assign(gameStatePropsToUpdate, {
-              turnRotation: updatedWinGameState.turnRotation,
-              currentMove: updatedWinGameState.currentMove,
-              playerStates: updatedWinGameState.playerStates,
-            });
-          }
-
-          Object.assign(gameState, gameStatePropsToUpdate);
+          Object.assign(gameState, updatedGameState);
 
           await gameState.save();
           await pubsub.publish('PLAYER_MOVE', { playerMove: gameState });
@@ -318,18 +300,16 @@ const resolvers = {
               (playerState) =>
                 playerState.player === gameState.currentMove.player,
             );
-            let freePlayerIndex = currentMovePlayerIndex + 1;
-            while (freePlayerIndex !== currentMovePlayerIndex) {
-              if (freePlayerIndex > gameState.playerStates.length - 1) {
-                freePlayerIndex = 0;
-              }
+            const numPlayers = gameState.playerStates.length;
+            let freePlayerIndex = (currentMovePlayerIndex + 1) % numPlayers;
 
-              if (gameState.playerStates[freePlayerIndex].placementRank === 0) {
-                gameState.currentMove.player =
-                  gameState.playerStates[freePlayerIndex].player;
-                freePlayerIndex = currentMovePlayerIndex;
-              }
+            while (
+              gameState.playerStates[freePlayerIndex].placementRank !== 0
+            ) {
+              freePlayerIndex = (freePlayerIndex + 1) % numPlayers;
             }
+            gameState.currentMove.player =
+              gameState.playerStates[freePlayerIndex].player;
 
             const tempTurnRotation = [...gameState.turnRotation];
             while (tempTurnRotation[0] !== gameState.currentMove.player) {
